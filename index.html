@@ -6,6 +6,7 @@
     <script>
         const publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/kJqJoIty10XtGg==";
 
+     
         async function init() {
             const reg = await navigator.serviceWorker.register('sw.js');
             const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: publicKey });
@@ -36,3 +37,4 @@
     <button onclick="init()" style="padding:15px 30px; background:#1a73e8; color:white; border:none; border-radius:5px;">تفعيل الآن</button>
 </body>
 </html>
+
